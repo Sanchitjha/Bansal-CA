@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { faqsData } from "@/data/faqs";
 
 export default function FAQAccordion() {

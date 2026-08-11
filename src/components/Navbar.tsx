@@ -61,7 +61,7 @@ export default function Navbar() {
 
           {/* Mobile Actions (Visible only inside hamburger list) */}
           <div className="nav-actions-mobile" style={{ display: "none" }}>
-            <Link href="#" className="btn btn-secondary" onClick={() => setIsMenuOpen(false)}>
+            <Link href="/self-client/login" className="btn btn-secondary" onClick={() => setIsMenuOpen(false)}>
               Login
             </Link>
             <Link href="#final-cta" className="btn btn-primary" onClick={() => setIsMenuOpen(false)}>
@@ -90,7 +90,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          <Link href="#" className="login-link">
+          <Link href="/self-client/login" className="login-link">
             Login
           </Link>
           <Link href="#final-cta" className="btn btn-primary">

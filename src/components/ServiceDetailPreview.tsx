@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { servicesData, ServiceItem } from "@/data/services";
+import { servicesData } from "@/data/services";
 
 export default function ServiceDetailPreview() {
   const activeServices = servicesData
@@ -128,7 +128,7 @@ export default function ServiceDetailPreview() {
 
               {activeSubTab === "who-it-is-for" && (
                 <div>
-                  <h4 className="preview-section-title">Who It's For</h4>
+                  <h4 className="preview-section-title">Who It&apos;s For</h4>
                   <ul className="preview-list">
                     {selectedService.details.whoItIsFor.map((item, idx) => (
                       <li key={idx} className="preview-list-item">
