@@ -108,15 +108,15 @@ export default function NewServiceRequestPage() {
             <p className="preview-desc">{selectedService.details.overview}</p>
             <div className="preview-meta-row">
               <div>
-                <span className="preview-section-title">Timeline</span>
+                <h4 className="preview-section-title">Timeline</h4>
                 <p className="preview-meta-value">{selectedService.details.timeline}</p>
               </div>
               <div>
-                <span className="preview-section-title">Pricing</span>
+                <h4 className="preview-section-title">Pricing</h4>
                 <p className="preview-meta-value">{selectedService.details.pricing}</p>
               </div>
             </div>
-            <span className="preview-section-title">Documents Required</span>
+            <h4 className="preview-section-title">Documents Required</h4>
             <ul className="preview-list">
               {selectedService.details.documentsRequired.map((doc) => (
                 <li key={doc} className="preview-list-item">{doc}</li>

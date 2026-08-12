@@ -1,0 +1,1 @@
+{"nodes": [{"id": "next_config_ts_generate_agent_files", "label": "generate-agent-files.js (AGENTS.md marker source)", "file_type": "code", "source_file": "node_modules/next/dist/server/lib/generate-agent-files.js", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}

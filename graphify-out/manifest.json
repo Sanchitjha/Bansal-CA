@@ -1,0 +1,202 @@
+{
+  "/home/manav/Documents/Manav/Bansal-CA/eslint.config.mjs": {
+    "mtime": 1786521860.5356047,
+    "hash": "dfa1f5f6a7037bf39dc510f30b180002"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/next.config.ts": {
+    "mtime": 1786521860.5356047,
+    "hash": "9b77af189a21a7a64e4bd7a426f64176"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/next-env.d.ts": {
+    "mtime": 1786521906.6800094,
+    "hash": "aa94238a90e7d04b7a47ecc3145ba6a0"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/app/layout.tsx": {
+    "mtime": 1786521860.5409672,
+    "hash": "7037f3052b1e54c72d1b7d595fdb5ccf"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/app/page.tsx": {
+    "mtime": 1786521860.5409672,
+    "hash": "2881971d60666c34f30aab8731da5534"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/app/self-client/layout.tsx": {
+    "mtime": 1786521860.5411637,
+    "hash": "ada664fda8b4f1ac95a91625505429e1"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/app/self-client/login/page.tsx": {
+    "mtime": 1786521860.5411637,
+    "hash": "59512969fe913685b2f25183373b14e5"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/app/self-client/(portal)/layout.tsx": {
+    "mtime": 1786521860.5411637,
+    "hash": "a8d5f4040b2ebdc54fa5d0246cf4273b"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/app/self-client/(portal)/page.tsx": {
+    "mtime": 1786521860.5411637,
+    "hash": "7bd6c4353f1389546706152ec82db74f"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/app/self-client/(portal)/documents/page.tsx": {
+    "mtime": 1786521860.5411637,
+    "hash": "7593efacd93043e59134672ce5870c62"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/app/self-client/(portal)/tasks/page.tsx": {
+    "mtime": 1786521860.5411637,
+    "hash": "fb73642383f75e5ce75cf917bda6eabe"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/app/self-client/(portal)/payments/page.tsx": {
+    "mtime": 1786521860.5411637,
+    "hash": "d0eb2e7aa9c60c46b19a647d5591f6bd"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/app/self-client/(portal)/profile/page.tsx": {
+    "mtime": 1786521860.5411637,
+    "hash": "0eddec6f5680f153f9ce01972d143fc0"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/app/self-client/(portal)/messages/page.tsx": {
+    "mtime": 1786521860.5411637,
+    "hash": "9ddc564fc442b53132dcb1b8e4d4ac9a"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/app/self-client/(portal)/notifications/page.tsx": {
+    "mtime": 1786521860.5411637,
+    "hash": "3a15cf47081e2339bc7ccaf11248a08f"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/app/self-client/(portal)/cases/page.tsx": {
+    "mtime": 1786521860.5411637,
+    "hash": "cbceeec1b7e231d83f28c54319e525af"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/app/self-client/(portal)/cases/[id]/page.tsx": {
+    "mtime": 1786521860.5411637,
+    "hash": "c7bd98731b35a6c4e40bf5ba5fe3b92b"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/app/self-client/(portal)/new-request/page.tsx": {
+    "mtime": 1786521860.5411637,
+    "hash": "bcfee5472aa97d24b4ac08809801f066"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/data/faqs.ts": {
+    "mtime": 1786521860.5424957,
+    "hash": "d7fd7ff0371728ad9d64b6c8392711c7"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/data/articles.ts": {
+    "mtime": 1786521860.5423853,
+    "hash": "37a9fa53ea5fc63222964345a289055f"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/data/selfClientMock.ts": {
+    "mtime": 1786521860.5424957,
+    "hash": "4df44da9552a8e2308f130791612112a"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/data/services.ts": {
+    "mtime": 1786521860.5424957,
+    "hash": "56e4abf9ce8588a54354e615b7cb539e"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/components/WhyChooseUs.tsx": {
+    "mtime": 1786521860.5419674,
+    "hash": "460350ad31b78b20a5679e0f5ba59d2e"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/components/ServiceGrid.tsx": {
+    "mtime": 1786521860.5419674,
+    "hash": "25f7c10b5c380516005afb06e9946a54"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/components/Hero.tsx": {
+    "mtime": 1786521860.5419674,
+    "hash": "b733ce38d59b105268ae77ceb6de9950"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/components/Navbar.tsx": {
+    "mtime": 1786521860.5419674,
+    "hash": "56fac30aba01373115e91fcab100b57b"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/components/HowItWorks.tsx": {
+    "mtime": 1786521860.5419674,
+    "hash": "75fbb0e248159ce6f5721fcaadc91c83"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/components/FAQAccordion.tsx": {
+    "mtime": 1786521860.5419674,
+    "hash": "7730d3c76ac3d6cb39acd3abb186474e"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/components/TrustBanner.tsx": {
+    "mtime": 1786521860.5419674,
+    "hash": "64ca3f8ebd340ada091503ccac333ad8"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/components/ServiceDetailPreview.tsx": {
+    "mtime": 1786521860.5419674,
+    "hash": "0a35d8616490ebe06d7bbd5797713a3b"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/components/AboutSection.tsx": {
+    "mtime": 1786521860.5411637,
+    "hash": "cf07b863923d4c82abfb337b7f00531e"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/components/FinalCTA.tsx": {
+    "mtime": 1786521860.5419674,
+    "hash": "b9edbd68cc68b1ca33e99970754de3ed"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/components/Footer.tsx": {
+    "mtime": 1786521860.5419674,
+    "hash": "76e0bf13f2facb67b1a336fa9205d71f"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/components/ResourcesSection.tsx": {
+    "mtime": 1786521860.5419674,
+    "hash": "ddff20eab154cadd968a5e9ef8224632"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/components/self-client/SelfClientProvider.tsx": {
+    "mtime": 1786521860.5423853,
+    "hash": "d434ea9d74659913539b95440d3ab6d0"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/components/self-client/PortalSidebar.tsx": {
+    "mtime": 1786521860.5419674,
+    "hash": "fa406cd18f0e24b0cbd309491da247e4"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/components/self-client/StatusBadge.tsx": {
+    "mtime": 1786521860.5423853,
+    "hash": "4bff229b256914ccf1794c43a8c6d2c1"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/src/components/self-client/PortalTopbar.tsx": {
+    "mtime": 1786521860.5423853,
+    "hash": "97a6aa7348f85af1622b4acda48a4acf"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/CLAUDE.md": {
+    "mtime": 1786521860.5355844,
+    "hash": "31a2ae987768934e4be1b93e4fb5cbdd"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/README.md": {
+    "mtime": 1786521860.5355844,
+    "hash": "f15aaa42d5d299d091b1171097ea56ad"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/AGENTS.md": {
+    "mtime": 1786521860.5355844,
+    "hash": "01e8142356e15c3404e0d84c48187cd0"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/docs/requirements.md": {
+    "mtime": 1786521860.5356047,
+    "hash": "0033f9849c6b6fb7974eff1887c7424e"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/docs/self-client-portal-requirements.md": {
+    "mtime": 1786521860.5356047,
+    "hash": "7865d7be0937d1bda25ca92013478cb1"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/public/globe.svg": {
+    "mtime": 1786521860.539605,
+    "hash": "2aaafa6a49b6563925fe440891e32717"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/public/window.svg": {
+    "mtime": 1786521860.539605,
+    "hash": "a2760511c65806022ad20adf74370ff3"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/public/file.svg": {
+    "mtime": 1786521860.539605,
+    "hash": "d09f95206c3fa0bb9bd9fefabfd0ea71"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/public/next.svg": {
+    "mtime": 1786521860.539605,
+    "hash": "8e061864f388b47f33a1c3780831193e"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/public/vercel.svg": {
+    "mtime": 1786521860.539605,
+    "hash": "c0af2f507b369b085b35ef4bbe3bcf1e"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/public/assets/team.png": {
+    "mtime": 1786521860.539605,
+    "hash": "69b0d0e2a968429f60476bd1128bd366"
+  },
+  "/home/manav/Documents/Manav/Bansal-CA/public/assets/consultation.png": {
+    "mtime": 1786521860.5376048,
+    "hash": "575f9348f6a1fa531a6b3dbb6bd63a1f"
+  }
+}
