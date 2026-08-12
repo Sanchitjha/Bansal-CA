@@ -12,6 +12,7 @@ export class UserRoute implements IRoute {
 
   private initializeRoutes(): void {
     this.router.get("/", this.controller.getUsers);
+    this.router.get("/external/:externalId", this.controller.getUserByExternalId);
     this.router.get("/:id", this.controller.getUserById);
     this.router.post("/", this.controller.createUser);
     this.router.put("/:id", this.controller.updateUser);

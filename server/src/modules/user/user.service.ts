@@ -22,9 +22,17 @@ export class UserService implements IUserService {
     return user;
   }
 
+  public async getUserByExternalId(externalId: string): Promise<IUserWithId> {
+    const user = await this.userRepository.findByExternalAuthId(externalId);
+    if (!user) {
+      throw new NotFoundException(`User with external ID ${externalId} not found`);
+    }
+    return user;
+  }
+
   public async createUser(data: CreateUserInput): Promise<IUserWithId> {
-    if (!data.name || !data.email) {
-      throw new BadRequestException("name and email are required");
+    if (!data.externalAuthId || !data.email || !data.firstName || !data.lastName || !data.roleId) {
+      throw new BadRequestException("externalAuthId, email, firstName, lastName, and roleId are required");
     }
     return this.userRepository.create(data);
   }

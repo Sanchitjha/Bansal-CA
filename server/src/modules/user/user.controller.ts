@@ -22,6 +22,15 @@ export class UserController {
     }
   };
 
+  public getUserByExternalId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const user = await this.userService.getUserByExternalId(req.params.externalId);
+      res.status(200).json(user);
+    } catch (err) {
+      next(err);
+    }
+  };
+
   public createUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user = await this.userService.createUser(req.body);
