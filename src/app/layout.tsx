@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
 // Configure Google Fonts with next/font/google
 const cormorantGaramond = Cormorant_Garamond({
@@ -33,10 +31,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className={`${cormorantGaramond.variable} ${plusJakartaSans.variable}`}>
-        <Navbar />
-        <main style={{ flex: 1 }}>{children}</main>
-        <Footer />
+        {children}
       </body>
     </html>
   );

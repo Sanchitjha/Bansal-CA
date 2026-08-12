@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { servicesData } from "@/data/services";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -89,6 +90,8 @@ export default function Navbar() {
               </button>
             </div>
           </div>
+
+          <ThemeToggle />
 
           <Link href="/self-client/login" className="login-link">
             Login

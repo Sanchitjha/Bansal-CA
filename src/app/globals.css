@@ -8,12 +8,17 @@
   --color-bg-white: #FFFFFF;
   --color-text-primary: #121212;
   --color-text-secondary: #5A6578;
-  --color-border: rgba(11, 21, 40, 0.08);
-  --color-border-dark: rgba(11, 21, 40, 0.15);
+
+  /* RGB triplets for tint/overlay effects that need to flip with theme */
+  --color-ink-rgb: 11, 21, 40;
+  --color-surface-rgb: 250, 249, 246;
+
+  --color-border: rgba(var(--color-ink-rgb), 0.08);
+  --color-border-dark: rgba(var(--color-ink-rgb), 0.15);
 
   /* Elevation */
-  --shadow-subtle: 0 4px 20px -2px rgba(11, 21, 40, 0.03);
-  --shadow-medium: 0 10px 30px -10px rgba(11, 21, 40, 0.05);
+  --shadow-subtle: 0 4px 20px -2px rgba(var(--color-ink-rgb), 0.03);
+  --shadow-medium: 0 10px 30px -10px rgba(var(--color-ink-rgb), 0.05);
 
   /* Layout Spacing */
   --section-padding: 8rem;
@@ -23,6 +28,36 @@
   /* Font Families */
   --font-serif: var(--font-serif-google, 'Cormorant Garamond', Georgia, serif);
   --font-sans: var(--font-sans-google, 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif);
+}
+
+/* Dark mode: system default (no explicit override) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-navy: #F1EEE8;
+    --color-navy-light: #1B242F;
+    --color-bg-neutral: #0C1013;
+    --color-bg-white: #151A20;
+    --color-text-primary: #ECEAE5;
+    --color-text-secondary: #9BA3AF;
+    --color-ink-rgb: 255, 255, 255;
+    --color-surface-rgb: 12, 16, 19;
+    --shadow-subtle: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
+    --shadow-medium: 0 10px 30px -10px rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* Dark mode: explicit user choice via toggle */
+:root[data-theme="dark"] {
+  --color-navy: #F1EEE8;
+  --color-navy-light: #1B242F;
+  --color-bg-neutral: #0C1013;
+  --color-bg-white: #151A20;
+  --color-text-primary: #ECEAE5;
+  --color-text-secondary: #9BA3AF;
+  --color-ink-rgb: 255, 255, 255;
+  --color-surface-rgb: 12, 16, 19;
+  --shadow-subtle: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
+  --shadow-medium: 0 10px 30px -10px rgba(0, 0, 0, 0.45);
 }
 
 /* Base Reset & Layout */
@@ -135,7 +170,7 @@ p, span, a, button, input, textarea, .font-sans {
 }
 
 .btn-secondary:hover {
-  background-color: rgba(11, 21, 40, 0.03);
+  background-color: rgba(var(--color-ink-rgb), 0.03);
   border-color: var(--color-navy);
   transform: translateY(-1px);
 }
@@ -169,7 +204,7 @@ p, span, a, button, input, textarea, .font-sans {
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: rgba(250, 249, 246, 0.95);
+  background-color: rgba(var(--color-surface-rgb), 0.95);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--color-border);
 }
@@ -345,6 +380,27 @@ p, span, a, button, input, textarea, .font-sans {
 
 .login-link:hover {
   color: var(--color-orange);
+}
+
+/* Theme toggle */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  background-color: rgba(var(--color-ink-rgb), 0.06);
+  color: var(--color-navy);
+}
+
+.portal-theme-toggle {
+  margin-right: 0.25rem;
 }
 
 /* Hamburger menu */
@@ -675,7 +731,7 @@ p, span, a, button, input, textarea, .font-sans {
 .step-num {
   font-family: var(--font-serif);
   font-size: 2.5rem;
-  color: rgba(11, 21, 40, 0.06);
+  color: rgba(var(--color-ink-rgb), 0.06);
   line-height: 1;
   position: absolute;
   top: 1.5rem;
@@ -1044,8 +1100,8 @@ p, span, a, button, input, textarea, .font-sans {
 
 /* Final CTA Section */
 .final-cta {
-  background-color: var(--color-navy);
-  color: var(--color-bg-white);
+  background-color: #0B1528;
+  color: #FFFFFF;
   padding: 7rem 0;
   border-bottom: none;
   text-align: center;
@@ -1074,7 +1130,7 @@ p, span, a, button, input, textarea, .font-sans {
 
 .final-cta h2 {
   font-size: 3.5rem;
-  color: var(--color-bg-white);
+  color: #FFFFFF;
   margin-bottom: 1.25rem;
   font-weight: 400;
 }
@@ -1606,18 +1662,29 @@ p, span, a, button, input, textarea, .font-sans {
 .portal-sidebar {
   width: 260px;
   flex-shrink: 0;
-  background-color: var(--color-navy);
+  background-color: var(--color-bg-white);
+  border-right: 1px solid var(--color-border);
   padding: 2rem 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .portal-sidebar {
+    background-color: var(--color-navy-light);
+  }
+}
+
+:root[data-theme="dark"] .portal-sidebar {
+  background-color: var(--color-navy-light);
+}
+
 .portal-sidebar-logo {
   font-family: var(--font-serif);
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--color-bg-white);
+  color: var(--color-navy);
 }
 
 .portal-sidebar-logo span {
@@ -1634,18 +1701,18 @@ p, span, a, button, input, textarea, .font-sans {
   padding: 0.75rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: rgba(250, 249, 246, 0.65);
+  color: var(--color-text-secondary);
   border-radius: 4px;
 }
 
 .portal-nav-link:hover {
-  background-color: rgba(250, 249, 246, 0.06);
-  color: var(--color-bg-white);
+  background-color: rgba(var(--color-ink-rgb), 0.05);
+  color: var(--color-navy);
 }
 
 .portal-nav-link.active {
-  background-color: rgba(227, 90, 55, 0.15);
-  color: var(--color-bg-white);
+  background-color: rgba(227, 90, 55, 0.1);
+  color: var(--color-orange);
   font-weight: 600;
 }
 
@@ -1686,28 +1753,59 @@ p, span, a, button, input, textarea, .font-sans {
 
 .portal-topbar-bell {
   position: relative;
-  font-size: 0.8125rem;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
   color: var(--color-text-secondary);
 }
 
 .portal-topbar-bell:hover {
   color: var(--color-navy);
+  background-color: rgba(var(--color-ink-rgb), 0.05);
 }
 
 .portal-topbar-bell-count {
+  position: absolute;
+  top: 2px;
+  right: 2px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
-  margin-left: 0.35rem;
-  font-size: 0.6875rem;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  font-size: 0.625rem;
   font-weight: 700;
   color: var(--color-bg-white);
   background-color: var(--color-orange);
   border-radius: 999px;
+}
+
+.portal-topbar-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+  border-radius: 999px;
+}
+
+.portal-topbar-profile:hover {
+  background-color: rgba(var(--color-ink-rgb), 0.05);
+}
+
+.portal-topbar-profile-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background-color: rgba(var(--color-ink-rgb), 0.06);
+  color: var(--color-navy);
+  flex-shrink: 0;
 }
 
 .portal-topbar-user {
@@ -1906,7 +2004,7 @@ p, span, a, button, input, textarea, .font-sans {
   padding: 0.3rem 0.65rem;
   border-radius: 999px;
   white-space: nowrap;
-  background-color: rgba(11, 21, 40, 0.06);
+  background-color: rgba(var(--color-ink-rgb), 0.06);
   color: var(--color-text-secondary);
 }
 
@@ -1935,7 +2033,7 @@ p, span, a, button, input, textarea, .font-sans {
 .status-review,
 .status-uploaded,
 .status-new-lead {
-  background-color: rgba(11, 21, 40, 0.08);
+  background-color: rgba(var(--color-ink-rgb), 0.08);
   color: var(--color-navy);
 }
 
