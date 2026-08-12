@@ -260,6 +260,7 @@ p, span, a, button, input, textarea, .font-sans {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-text-secondary);
+  transition: color 0.2s ease;
 }
 
 .dropdown-trigger:hover {
@@ -327,6 +328,12 @@ p, span, a, button, input, textarea, .font-sans {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--color-navy);
+  transition: all 0.2s ease;
+}
+
+.lang-btn:hover {
+  border-color: var(--color-navy);
+  background-color: rgba(var(--color-ink-rgb), 0.03);
 }
 
 .lang-dropdown {
@@ -358,6 +365,7 @@ p, span, a, button, input, textarea, .font-sans {
   font-size: 0.75rem;
   color: var(--color-text-secondary);
   border-radius: 3px;
+  transition: all 0.2s ease;
 }
 
 .lang-option:hover {
@@ -726,6 +734,13 @@ p, span, a, button, input, textarea, .font-sans {
   padding: 3rem 2.25rem;
   border-radius: 4px;
   position: relative;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.step-card:hover {
+  border-color: var(--color-navy);
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-2px);
 }
 
 .step-num {
@@ -868,6 +883,7 @@ p, span, a, button, input, textarea, .font-sans {
 .preview-tab-btn:hover {
   background-color: var(--color-bg-neutral);
   color: var(--color-navy);
+  transform: translateX(4px);
 }
 
 .preview-tab-btn.active {
@@ -1066,6 +1082,11 @@ p, span, a, button, input, textarea, .font-sans {
   color: var(--color-navy);
   font-weight: 500;
   padding: 0.5rem 0;
+  transition: color 0.2s ease;
+}
+
+.faq-question-btn:hover {
+  color: var(--color-orange);
 }
 
 .faq-question-btn svg {
@@ -1703,11 +1724,13 @@ p, span, a, button, input, textarea, .font-sans {
   font-weight: 500;
   color: var(--color-text-secondary);
   border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
 .portal-nav-link:hover {
   background-color: rgba(var(--color-ink-rgb), 0.05);
   color: var(--color-navy);
+  transform: translateX(2px);
 }
 
 .portal-nav-link.active {
@@ -1871,6 +1894,13 @@ p, span, a, button, input, textarea, .font-sans {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.portal-stat-card:hover {
+  border-color: var(--color-navy);
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-2px);
 }
 
 .portal-stat-value {
@@ -2181,10 +2211,12 @@ p, span, a, button, input, textarea, .font-sans {
   text-align: left;
   padding: 0.75rem 1rem;
   border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
 .portal-messages-case-btn:hover {
   background-color: var(--color-bg-neutral);
+  transform: translateX(2px);
 }
 
 .portal-messages-case-btn.active {

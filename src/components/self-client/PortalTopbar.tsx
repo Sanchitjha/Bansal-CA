@@ -17,9 +17,23 @@ export default function PortalTopbar() {
 
   return (
     <header className="portal-topbar">
-      <div className="portal-topbar-title">
-        <span className="portal-badge-selfclient">Self Client</span>
-      </div>
+      <Link href="/self-client/profile" className="portal-topbar-profile" aria-label="My Profile">
+        <span className="portal-topbar-profile-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.75" />
+            <path
+              d="M4 20c0-4 3.5-7 8-7s8 3 8 7"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+        <span className="portal-topbar-user">
+          <span className="portal-topbar-user-name">{profile.name}</span>
+        </span>
+      </Link>
       <div className="portal-topbar-actions">
         <ThemeToggle className="portal-theme-toggle" />
         <Link href="/self-client/notifications" className="portal-topbar-bell" aria-label="Notifications">
@@ -40,23 +54,6 @@ export default function PortalTopbar() {
             />
           </svg>
           {unreadCount > 0 && <span className="portal-topbar-bell-count">{unreadCount}</span>}
-        </Link>
-        <Link href="/self-client/profile" className="portal-topbar-profile" aria-label="My Profile">
-          <span className="portal-topbar-profile-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.75" />
-              <path
-                d="M4 20c0-4 3.5-7 8-7s8 3 8 7"
-                stroke="currentColor"
-                strokeWidth="1.75"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
-          <span className="portal-topbar-user">
-            <span className="portal-topbar-user-name">{profile.name}</span>
-          </span>
         </Link>
         <button type="button" className="btn btn-secondary portal-logout-btn" onClick={handleLogout}>
           Logout
