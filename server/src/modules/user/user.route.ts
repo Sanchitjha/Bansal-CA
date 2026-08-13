@@ -31,6 +31,9 @@ export class UserRoute implements IRoute {
 
   private initializeRoutes(): void {
     this.router.get("/", this.controller.getUsers);
+    this.router.post("/signup", this.controller.signup);
+    this.router.post("/login", this.controller.login);
+    this.router.post("/admin-login", this.controller.adminLogin);
     this.router.get("/external/:externalId", this.controller.getUserByExternalId);
     this.router.get("/:id", this.controller.getUserById);
     this.router.post("/", this.controller.createUser);
@@ -38,6 +41,92 @@ export class UserRoute implements IRoute {
     this.router.delete("/:id", this.controller.deleteUser);
   }
 }
+
+/**
+ * @openapi
+ * /api/users/signup:
+ *   post:
+ *     summary: Client Signup
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password, firstName, lastName]
+ *             properties:
+ *               email: { type: string, example: client@example.com }
+ *               password: { type: string, example: secret123 }
+ *               firstName: { type: string, example: John }
+ *               lastName: { type: string, example: Doe }
+ *               phone: { type: string, example: "+1234567890" }
+ *               legalName: { type: string, example: "John Doe Consulting" }
+ *               clientType: { type: string, enum: [INDIVIDUAL, BUSINESS], default: INDIVIDUAL }
+ *     responses:
+ *       201:
+ *         description: Registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user: { $ref: '#/components/schemas/User' }
+ *                 client: { $ref: '#/components/schemas/Client' }
+ *       400:
+ *         description: Bad request
+ * /api/users/login:
+ *   post:
+ *     summary: Client Login
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password]
+ *             properties:
+ *               email: { type: string, example: client@example.com }
+ *               password: { type: string, example: secret123 }
+ *     responses:
+ *       200:
+ *         description: Authenticated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user: { $ref: '#/components/schemas/User' }
+ *                 client: { $ref: '#/components/schemas/Client' }
+ *       400:
+ *         description: Invalid credentials
+ * /api/users/admin-login:
+ *   post:
+ *     summary: Admin Login
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password]
+ *             properties:
+ *               email: { type: string, example: amit.bansal@aa.com }
+ *               password: { type: string, example: admin123 }
+ *     responses:
+ *       200:
+ *         description: Authenticated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user: { $ref: '#/components/schemas/User' }
+ *       400:
+ *         description: Invalid credentials / Unauthorized
+ */
 
 /**
  * @openapi

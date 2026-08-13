@@ -11,6 +11,7 @@ export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!isCheckingSession && isAuthenticated) {
@@ -18,15 +19,24 @@ export default function AdminLoginPage() {
     }
   }, [isCheckingSession, isAuthenticated, router]);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
       setError("Please enter both email and password.");
       return;
     }
+
     setError("");
-    login(email.trim());
-    router.push("/admin");
+    setLoading(true);
+
+    try {
+      await login(email.trim(), password.trim());
+      router.push("/admin");
+    } catch (err: any) {
+      setError(err.message || "Failed to sign in. Please check your credentials.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,14 +50,10 @@ export default function AdminLoginPage() {
           Sign in to manage cases, clients, partners, payments and content across A&amp;A.
         </p>
 
-        <p className="login-demo-note">
-          Demo mode: this admin panel runs on mock data with no backend yet. Any email and password will sign you in.
-        </p>
-
         <form className="portal-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label" htmlFor="email">
-              Email
+              Email Address
             </label>
             <input
               id="email"
@@ -57,6 +63,8 @@ export default function AdminLoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="amit.bansal@aa.com"
               autoComplete="email"
+              disabled={loading}
+              required
             />
           </div>
           <div className="form-group">
@@ -71,13 +79,19 @@ export default function AdminLoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               autoComplete="current-password"
+              disabled={loading}
+              required
             />
           </div>
 
           {error && <p className="form-error">{error}</p>}
 
-          <button type="submit" className="btn btn-primary login-submit-btn">
-            Login
+          <button 
+            type="submit" 
+            className="btn btn-primary login-submit-btn"
+            disabled={loading}
+          >
+            {loading ? "Signing in..." : "Login"}
           </button>
         </form>
 

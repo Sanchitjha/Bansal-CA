@@ -5,9 +5,10 @@ export class CaseController {
   constructor(private readonly caseService: CaseService) {}
 
   // Case CRUD
-  public getCases = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public getCases = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const cases = await this.caseService.getCases();
+      const { clientId } = req.query;
+      const cases = await this.caseService.getCases(clientId as string);
       res.status(200).json(cases);
     } catch (err) {
       next(err);
