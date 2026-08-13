@@ -2,6 +2,7 @@ import { BadRequestException, NotFoundException } from "../../common/errors/http
 import { UserModel } from "./user.model";
 import { RoleModel } from "../role/role.model";
 import { ClientModel } from "../client/client.model";
+import { PartnerModel } from "../partner/partner.model";
 import { hashPassword } from "./user.utils";
 import {
   CreateUserInput,
@@ -12,6 +13,8 @@ import {
   SignupInput,
   LoginInput,
   AuthResponse,
+  PartnerSignupInput,
+  PartnerAuthResponse,
 } from "./user.types";
 
 export class UserService implements IUserService {
@@ -239,6 +242,202 @@ export class UserService implements IUserService {
 
     return {
       user: userResponse,
+    };
+  }
+
+  public async partnerSignup(data: PartnerSignupInput): Promise<PartnerAuthResponse> {
+    const {
+      email, password, firstName, lastName, phone, legalName, displayName,
+      partnerType, pan, addressLine1, city, state, postalCode, country
+    } = data;
+
+    if (!email || !password || !firstName || !lastName || !pan) {
+      throw new BadRequestException("Email, password, firstName, lastName, and PAN are required");
+    }
+
+    const existingEmail = await UserModel.findOne({ email: email.toLowerCase() });
+    if (existingEmail) {
+      throw new BadRequestException("User with this email already exists");
+    }
+
+    let partnerRole = await RoleModel.findOne({ name: "PARTNER" });
+    if (!partnerRole) {
+      partnerRole = await RoleModel.create({
+        name: "PARTNER",
+        description: "Channel partner role",
+        permissions: [],
+      });
+    }
+
+    const hashedPassword = hashPassword(password);
+
+    const userDoc = await UserModel.create({
+      email: email.toLowerCase(),
+      phone: phone || "",
+      firstName,
+      lastName,
+      password: hashedPassword,
+      roleId: partnerRole._id,
+      status: "ACTIVE",
+      externalAuthId: email.toLowerCase(),
+    });
+
+    const partnerCode = `PTR-${Math.floor(100000 + Math.random() * 900000)}`;
+
+    const partnerDoc = await PartnerModel.create({
+      userId: userDoc._id,
+      partnerCode,
+      partnerType: partnerType || "INDIVIDUAL",
+      legalName: legalName || `${firstName} ${lastName}`,
+      displayName: displayName || `${firstName} ${lastName}`,
+      contact: {
+        email: email.toLowerCase(),
+        phone: phone || "",
+      },
+      status: "PENDING_VERIFICATION",
+      kyc: {
+        legalName: legalName || `${firstName} ${lastName}`,
+        taxIdentifiers: {
+          pan: pan,
+        },
+        address: {
+          line1: addressLine1 || "PENDING",
+          city: city || "PENDING",
+          state: state || "PENDING",
+          postalCode: postalCode || "PENDING",
+          country: country || "IN",
+        },
+        verificationStatus: "PENDING",
+      },
+      bankAccounts: [],
+    });
+
+    const userResponse = {
+      id: String(userDoc._id),
+      email: userDoc.email,
+      phone: userDoc.phone,
+      firstName: userDoc.firstName,
+      lastName: userDoc.lastName,
+      roleId: String(userDoc.roleId),
+      status: userDoc.status,
+      externalAuthId: userDoc.externalAuthId,
+      lastLoginAt: userDoc.lastLoginAt,
+      createdAt: (userDoc as any).createdAt,
+      updatedAt: (userDoc as any).updatedAt,
+    };
+
+    const partnerResponse = {
+      id: String(partnerDoc._id),
+      userId: String(partnerDoc.userId),
+      partnerCode: partnerDoc.partnerCode,
+      partnerType: partnerDoc.partnerType,
+      legalName: partnerDoc.legalName,
+      displayName: partnerDoc.displayName,
+      contact: partnerDoc.contact,
+      status: partnerDoc.status,
+      kyc: partnerDoc.kyc,
+      bankAccounts: (partnerDoc.bankAccounts || []).map((b: any) => ({
+        accountHolderName: b.accountHolderName,
+        accountNumberEncrypted: b.accountNumberEncrypted,
+        bankName: b.bankName,
+        branchName: b.branchName,
+        ifsc: b.ifsc,
+        verificationStatus: b.verificationStatus,
+        verifiedBy: b.verifiedBy ? String(b.verifiedBy) : undefined,
+        verifiedAt: b.verifiedAt,
+        isPrimary: b.isPrimary,
+      })),
+      onboarding: {
+        submittedAt: partnerDoc.onboarding?.submittedAt,
+        verifiedAt: partnerDoc.onboarding?.verifiedAt,
+        verifiedBy: partnerDoc.onboarding?.verifiedBy ? String(partnerDoc.onboarding.verifiedBy) : undefined,
+      },
+      createdAt: (partnerDoc as any).createdAt,
+      updatedAt: (partnerDoc as any).updatedAt,
+    };
+
+    return {
+      user: userResponse,
+      partner: partnerResponse,
+    };
+  }
+
+  public async partnerLogin(data: LoginInput): Promise<PartnerAuthResponse> {
+    const { email, password } = data;
+    if (!email || !password) {
+      throw new BadRequestException("Email and password are required");
+    }
+
+    const userDoc = await UserModel.findOne({ email: email.toLowerCase() }).select("+password").populate("roleId");
+    if (!userDoc || !userDoc.password) {
+      throw new BadRequestException("Invalid email or password");
+    }
+
+    const hashedPassword = hashPassword(password);
+    if (userDoc.password !== hashedPassword) {
+      throw new BadRequestException("Invalid email or password");
+    }
+
+    const roleDoc: any = userDoc.roleId;
+    if (!roleDoc || roleDoc.name !== "PARTNER") {
+      throw new BadRequestException("Unauthorized access. Partner portal is restricted to partners.");
+    }
+
+    const partnerDoc = await PartnerModel.findOne({ userId: userDoc._id });
+    if (!partnerDoc) {
+      throw new NotFoundException("Partner profile not found for this user");
+    }
+
+    userDoc.lastLoginAt = new Date();
+    await userDoc.save();
+
+    const userResponse = {
+      id: String(userDoc._id),
+      email: userDoc.email,
+      phone: userDoc.phone,
+      firstName: userDoc.firstName,
+      lastName: userDoc.lastName,
+      roleId: String(roleDoc._id),
+      status: userDoc.status,
+      externalAuthId: userDoc.externalAuthId,
+      lastLoginAt: userDoc.lastLoginAt,
+      createdAt: (userDoc as any).createdAt,
+      updatedAt: (userDoc as any).updatedAt,
+    };
+
+    const partnerResponse = {
+      id: String(partnerDoc._id),
+      userId: String(partnerDoc.userId),
+      partnerCode: partnerDoc.partnerCode,
+      partnerType: partnerDoc.partnerType,
+      legalName: partnerDoc.legalName,
+      displayName: partnerDoc.displayName,
+      contact: partnerDoc.contact,
+      status: partnerDoc.status,
+      kyc: partnerDoc.kyc,
+      bankAccounts: (partnerDoc.bankAccounts || []).map((b: any) => ({
+        accountHolderName: b.accountHolderName,
+        accountNumberEncrypted: b.accountNumberEncrypted,
+        bankName: b.bankName,
+        branchName: b.branchName,
+        ifsc: b.ifsc,
+        verificationStatus: b.verificationStatus,
+        verifiedBy: b.verifiedBy ? String(b.verifiedBy) : undefined,
+        verifiedAt: b.verifiedAt,
+        isPrimary: b.isPrimary,
+      })),
+      onboarding: {
+        submittedAt: partnerDoc.onboarding?.submittedAt,
+        verifiedAt: partnerDoc.onboarding?.verifiedAt,
+        verifiedBy: partnerDoc.onboarding?.verifiedBy ? String(partnerDoc.onboarding.verifiedBy) : undefined,
+      },
+      createdAt: (partnerDoc as any).createdAt,
+      updatedAt: (partnerDoc as any).updatedAt,
+    };
+
+    return {
+      user: userResponse,
+      partner: partnerResponse,
     };
   }
 }

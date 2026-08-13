@@ -22,6 +22,15 @@ export class PartnerController {
     }
   };
 
+  public getPartnerByUserId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const partner = await this.partnerService.getPartnerByUserId(req.params.userId);
+      res.status(200).json(partner);
+    } catch (err) {
+      next(err);
+    }
+  };
+
   public createPartner = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const partner = await this.partnerService.createPartner(req.body);

@@ -404,7 +404,7 @@ export default function SettingsPage() {
             <div className="portal-form">
               <div className="form-group">
                 <label className="form-label">System Timezone</label>
-                <select className="form-input" defaultValue="Asia/Kolkata">
+                <select className="form-select" defaultValue="Asia/Kolkata">
                   <option value="Asia/Kolkata">Asia/Kolkata (IST - GMT+5:30)</option>
                   <option value="UTC">Coordinated Universal Time (UTC)</option>
                   <option value="America/New_York">America/New_York (EST)</option>
@@ -412,7 +412,7 @@ export default function SettingsPage() {
               </div>
               <div className="form-group">
                 <label className="form-label">Default Table Row Pages size</label>
-                <select className="form-input" defaultValue="10">
+                <select className="form-select" defaultValue="10">
                   <option value="10">10 Rows per page</option>
                   <option value="25">25 Rows per page</option>
                   <option value="50">50 Rows per page</option>

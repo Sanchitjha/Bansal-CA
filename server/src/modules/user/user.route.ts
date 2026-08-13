@@ -34,6 +34,8 @@ export class UserRoute implements IRoute {
     this.router.post("/signup", this.controller.signup);
     this.router.post("/login", this.controller.login);
     this.router.post("/admin-login", this.controller.adminLogin);
+    this.router.post("/partner-signup", this.controller.partnerSignup);
+    this.router.post("/partner-login", this.controller.partnerLogin);
     this.router.get("/external/:externalId", this.controller.getUserByExternalId);
     this.router.get("/:id", this.controller.getUserById);
     this.router.post("/", this.controller.createUser);

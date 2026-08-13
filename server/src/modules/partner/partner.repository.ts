@@ -39,6 +39,11 @@ export class PartnerRepository {
     return doc ? toPartnerWithId(doc) : null;
   }
 
+  public async findByUserId(userId: string): Promise<IPartnerWithId | null> {
+    const doc = await this.model.findOne({ userId }).lean();
+    return doc ? toPartnerWithId(doc) : null;
+  }
+
   public async create(data: IPartner): Promise<IPartnerWithId> {
     const doc = await this.model.create(data);
     return toPartnerWithId(doc);

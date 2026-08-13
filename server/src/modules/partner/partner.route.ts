@@ -99,6 +99,7 @@ export class PartnerRoute implements IRoute {
 
   private initializeRoutes(): void {
     this.router.get("/", this.controller.getPartners);
+    this.router.get("/user/:userId", this.controller.getPartnerByUserId);
     this.router.get("/:id", this.controller.getPartnerById);
     this.router.post("/", this.controller.createPartner);
     this.router.put("/:id", this.controller.updatePartner);

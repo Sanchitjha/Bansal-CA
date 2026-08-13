@@ -67,6 +67,24 @@ export class UserController {
     }
   };
 
+  public partnerSignup = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const response = await this.userService.partnerSignup(req.body);
+      res.status(201).json(response);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  public partnerLogin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const response = await this.userService.partnerLogin(req.body);
+      res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  };
+
   public updateUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user = await this.userService.updateUser(req.params.id, req.body);
