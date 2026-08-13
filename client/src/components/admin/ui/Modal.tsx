@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ReactNode } from "react";
 
 interface ModalProps {
   open: boolean;
@@ -13,6 +13,7 @@ interface ModalProps {
   reasonLabel?: string;
   onConfirm: (reason?: string) => void;
   onCancel: () => void;
+  children?: ReactNode;
 }
 
 export default function Modal({
@@ -26,6 +27,7 @@ export default function Modal({
   reasonLabel = "Reason",
   onConfirm,
   onCancel,
+  children,
 }: ModalProps) {
   const [reason, setReason] = useState("");
 
@@ -38,6 +40,7 @@ export default function Modal({
       <div className={`modal ${danger ? "danger" : ""}`} onClick={(e) => e.stopPropagation()}>
         <div className="modal-title">{title}</div>
         {description && <p className="modal-body">{description}</p>}
+        {children}
         {requireReason && (
           <div className="form-group">
             <label className="form-label">
