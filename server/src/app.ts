@@ -1,10 +1,12 @@
 import cors from "cors";
 import express, { Application } from "express";
 import helmet from "helmet";
+import swaggerUi from "swagger-ui-express";
 import { IRoute } from "./common/interfaces/route.interface";
 import { ErrorMiddleware } from "./common/middlewares/error.middleware";
 import { NotFoundMiddleware } from "./common/middlewares/not-found.middleware";
 import { env } from "./config/env";
+import { swaggerSpec } from "./config/swagger";
 
 export class App {
   public app: Application;
@@ -24,6 +26,8 @@ export class App {
 
   private initializeRoutes(): void {
     this.app.get("/health", (_req, res) => res.status(200).json({ status: "ok" }));
+    this.app.get("/api-docs.json", (_req, res) => res.status(200).json(swaggerSpec));
+    this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
     this.routes.forEach((route) => {
       this.app.use(route.path, route.router);
     });
