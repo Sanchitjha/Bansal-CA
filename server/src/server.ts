@@ -1,5 +1,6 @@
 import { App } from "./app";
 import { Database } from "./config/database";
+import { logger } from "./config/logger";
 import { UserController } from "./modules/user/user.controller";
 import { UserRepository } from "./modules/user/user.repository";
 import { UserRoute } from "./modules/user/user.route";
@@ -48,7 +49,7 @@ async function seedDefaultAdmin(): Promise<void> {
         description: "Administrator role",
         permissions: ["ALL"],
       });
-      console.log("Seeded default ADMIN role");
+      logger.info("Seeded default ADMIN role");
     }
 
     const adminEmail = "amit.bansal@aa.com";
@@ -65,10 +66,10 @@ async function seedDefaultAdmin(): Promise<void> {
         status: "ACTIVE",
         externalAuthId: adminEmail,
       });
-      console.log("Seeded default admin user: amit.bansal@aa.com / admin123");
+      logger.info("Seeded default admin user: amit.bansal@aa.com / admin123");
     }
   } catch (err) {
-    console.error("Failed to seed default admin:", err);
+    logger.error("Failed to seed default admin", { error: err });
   }
 }
 
@@ -119,7 +120,7 @@ async function seedDefaultData(): Promise<void> {
           ],
         }
       ]);
-      console.log("Seeded default services");
+      logger.info("Seeded default services");
     }
 
     const partnerCount = await PartnerModel.countDocuments();
@@ -140,7 +141,7 @@ async function seedDefaultData(): Promise<void> {
         revenueSharePct: 15,
         tdsPct: 10,
       });
-      console.log("Seeded default partner: Zenith Advisors");
+      logger.info("Seeded default partner: Zenith Advisors");
     }
 
     const leadCount = await LeadModel.countDocuments();
@@ -153,10 +154,10 @@ async function seedDefaultData(): Promise<void> {
         status: "NEW",
         serviceName: "GST Registration & Compliance",
       });
-      console.log("Seeded default lead: Sanjay Goel");
+      logger.info("Seeded default lead: Sanjay Goel");
     }
   } catch (err) {
-    console.error("Failed to seed default data:", err);
+    logger.error("Failed to seed default data", { error: err });
   }
 }
 
@@ -221,6 +222,6 @@ async function bootstrap(): Promise<void> {
 }
 
 bootstrap().catch((err) => {
-  console.error("Failed to start server:", err);
+  logger.error("Failed to start server", { error: err });
   process.exit(1);
 });
