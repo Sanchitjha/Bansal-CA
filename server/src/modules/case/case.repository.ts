@@ -94,6 +94,11 @@ export class CaseRepository {
     return docs.map(toCaseWithId);
   }
 
+  public async findByClientId(clientId: string): Promise<ICaseWithId[]> {
+    const docs = await this.caseModel.find({ clientId }).lean();
+    return docs.map(toCaseWithId);
+  }
+
   public async findById(id: string): Promise<ICaseWithId | null> {
     const doc = await this.caseModel.findById(id).lean();
     return doc ? toCaseWithId(doc) : null;

@@ -59,6 +59,11 @@ export default function Footer() {
                   FAQs
                 </Link>
               </li>
+              <li>
+                <Link href="/partner" className="footer-link">
+                  Partner Portal
+                </Link>
+              </li>
             </ul>
           </div>
 

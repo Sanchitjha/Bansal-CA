@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from "express";
+import { logger } from "../../config/logger";
 import { HttpException } from "../errors/http-exception";
 
 export class ErrorMiddleware {
   public handle = (
     err: Error,
-    _req: Request,
+    req: Request,
     res: Response,
     _next: NextFunction
   ): void => {
@@ -12,7 +13,9 @@ export class ErrorMiddleware {
     const message = err instanceof HttpException ? err.message : "Internal server error";
 
     if (status === 500) {
-      console.error(err);
+      logger.error(`${req.method} ${req.originalUrl} - ${err.message}`, { stack: err.stack });
+    } else {
+      logger.warn(`${req.method} ${req.originalUrl} - ${message}`);
     }
 
     res.status(status).json({ status, message });

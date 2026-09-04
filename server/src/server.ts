@@ -1,6 +1,7 @@
 import { App } from "./app";
 import { Authenticate } from "./common/middlewares/auth.middleware";
 import { Database } from "./config/database";
+import { logger } from "./config/logger";
 import { AuthController } from "./modules/auth/auth.controller";
 import { AuthRoute } from "./modules/auth/auth.route";
 import { AuthService } from "./modules/auth/auth.service";
@@ -36,6 +37,133 @@ import { FinanceRepository } from "./modules/finance/finance.repository";
 import { FinanceService } from "./modules/finance/finance.service";
 import { FinanceController } from "./modules/finance/finance.controller";
 import { FinanceRoute } from "./modules/finance/finance.route";
+import { RoleModel } from "./modules/role/role.model";
+import { UserModel } from "./modules/user/user.model";
+import { hashPassword } from "./modules/user/user.utils";
+import { ServiceModel } from "./modules/service/service.model";
+import { PartnerModel } from "./modules/partner/partner.model";
+import { LeadModel } from "./modules/lead/lead.model";
+
+async function seedDefaultAdmin(): Promise<void> {
+  try {
+    let adminRole = await RoleModel.findOne({ name: "ADMIN" });
+    if (!adminRole) {
+      adminRole = await RoleModel.create({
+        name: "ADMIN",
+        description: "Administrator role",
+        permissions: ["ALL"],
+      });
+      logger.info("Seeded default ADMIN role");
+    }
+
+    const adminEmail = "amit.bansal@aa.com";
+    const existingAdmin = await UserModel.findOne({ email: adminEmail });
+    if (!existingAdmin) {
+      const hashedPassword = hashPassword("admin123");
+      await UserModel.create({
+        email: adminEmail,
+        phone: "+91 99999 99999",
+        firstName: "Amit",
+        lastName: "Bansal",
+        password: hashedPassword,
+        roleId: adminRole._id,
+        status: "ACTIVE",
+        externalAuthId: adminEmail,
+      });
+      logger.info("Seeded default admin user: amit.bansal@aa.com / admin123");
+    }
+  } catch (err) {
+    logger.error("Failed to seed default admin", { error: err });
+  }
+}
+
+async function seedDefaultData(): Promise<void> {
+  try {
+    const serviceCount = await ServiceModel.countDocuments();
+    if (serviceCount === 0) {
+      await ServiceModel.create([
+        {
+          code: "income-tax",
+          name: "Income Tax Return Filing",
+          category: "Income Tax",
+          description: "End-to-end preparation and e-filing of individual/business income tax returns.",
+          publicVisibility: true,
+          clientAvailability: true,
+          partnerAvailability: true,
+          status: "ACTIVE",
+          sortOrder: 1,
+          slaDays: 5,
+          documentRequirements: [
+            { documentType: "PAN", label: "PAN Card", required: true },
+            { documentType: "BANK_STATEMENT", label: "Bank Statements", required: true },
+          ],
+          workflow: [
+            { stageCode: "SUBMITTED", name: "Submitted", sortOrder: 1, tasks: [] },
+            { stageCode: "IN_PROGRESS", name: "In Progress", sortOrder: 2, tasks: [] },
+            { stageCode: "CLOSED", name: "Closed", sortOrder: 3, tasks: [] },
+          ],
+        },
+        {
+          code: "gst-compliance",
+          name: "GST Registration & Compliance",
+          category: "GST",
+          description: "New GST registration and ongoing monthly/quarterly return compliance.",
+          publicVisibility: true,
+          clientAvailability: true,
+          partnerAvailability: true,
+          status: "ACTIVE",
+          sortOrder: 2,
+          slaDays: 7,
+          documentRequirements: [
+            { documentType: "PAN", label: "PAN Card", required: true },
+            { documentType: "ADDRESS_PROOF", label: "Address Proof", required: true },
+          ],
+          workflow: [
+            { stageCode: "SUBMITTED", name: "Submitted", sortOrder: 1, tasks: [] },
+            { stageCode: "CLOSED", name: "Closed", sortOrder: 2, tasks: [] },
+          ],
+        }
+      ]);
+      logger.info("Seeded default services");
+    }
+
+    const partnerCount = await PartnerModel.countDocuments();
+    if (partnerCount === 0) {
+      await PartnerModel.create({
+        partnerCode: "PTR-101",
+        legalName: "Zenith Advisors",
+        contact: {
+          email: "kunal@zenithadvisors.example.com",
+          phone: "+91 98200 10101",
+        },
+        status: "ACTIVE",
+        pan: "AAZPS1234C",
+        gstin: "27AAZPS1234C1Z8",
+        bankAccountName: "Zenith Advisors LLP",
+        bankAccountNumber: "123456789012",
+        bankIfsc: "HDFC0000123",
+        revenueSharePct: 15,
+        tdsPct: 10,
+      });
+      logger.info("Seeded default partner: Zenith Advisors");
+    }
+
+    const leadCount = await LeadModel.countDocuments();
+    if (leadCount === 0) {
+      await LeadModel.create({
+        name: "Sanjay Goel",
+        email: "sanjay@example.com",
+        phone: "+91 99999 88888",
+        source: "WEBSITE",
+        status: "NEW",
+        serviceName: "GST Registration & Compliance",
+      });
+      logger.info("Seeded default lead: Sanjay Goel");
+    }
+  } catch (err) {
+    logger.error("Failed to seed default data", { error: err });
+  }
+}
 
 async function bootstrap(): Promise<void> {
   const roleRepository = new RoleRepository();
@@ -98,11 +226,13 @@ async function bootstrap(): Promise<void> {
 
   const database = new Database();
   await database.connect();
+  await seedDefaultAdmin();
+  await seedDefaultData();
 
   app.listen();
 }
 
 bootstrap().catch((err) => {
-  console.error("Failed to start server:", err);
+  logger.error("Failed to start server", { error: err });
   process.exit(1);
 });

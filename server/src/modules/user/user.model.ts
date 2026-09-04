@@ -10,6 +10,7 @@ const userSchema = new Schema<IUser>(
     lastName: { type: String, required: true, trim: true },
     passwordHash: { type: String, select: false },
     roleId: { type: Schema.Types.ObjectId, ref: "Role", required: true },
+    password: { type: String, select: false },
     status: {
       type: String,
       enum: ["INVITED", "ACTIVE", "SUSPENDED", "DEACTIVATED"],

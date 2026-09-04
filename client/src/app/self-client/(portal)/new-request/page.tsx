@@ -14,7 +14,7 @@ export default function NewServiceRequestPage() {
   const [notes, setNotes] = useState("");
   const [createdCase, setCreatedCase] = useState<SelfClientCase | null>(null);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const service = activeServices.find((s) => s.id === serviceId);
     if (!service) return;
@@ -22,14 +22,18 @@ export default function NewServiceRequestPage() {
     const priceMatch = service.details.pricing.match(/\$(\d+)/);
     const amount = priceMatch ? Number(priceMatch[1]) : 0;
 
-    const newCase = addCase({
-      serviceId: service.id,
-      serviceName: service.name,
-      amount,
-      notes: notes.trim() || undefined,
-    });
-    setCreatedCase(newCase);
-    setNotes("");
+    try {
+      const newCase = await addCase({
+        serviceId: service.id,
+        serviceName: service.name,
+        amount,
+        notes: notes.trim() || undefined,
+      });
+      setCreatedCase(newCase);
+      setNotes("");
+    } catch (err) {
+      console.error("Failed to submit request", err);
+    }
   };
 
   if (createdCase) {

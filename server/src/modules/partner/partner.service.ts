@@ -17,6 +17,14 @@ export class PartnerService {
     return partner;
   }
 
+  public async getPartnerByUserId(userId: string): Promise<IPartnerWithId> {
+    const partner = await this.partnerRepository.findByUserId(userId);
+    if (!partner) {
+      throw new NotFoundException(`Partner with user id ${userId} not found`);
+    }
+    return partner;
+  }
+
   public async getPartnerByCode(code: string): Promise<IPartnerWithId> {
     const partner = await this.partnerRepository.findByPartnerCode(code);
     if (!partner) {

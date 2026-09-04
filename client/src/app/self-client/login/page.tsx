@@ -11,6 +11,7 @@ export default function SelfClientLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!isCheckingSession && isAuthenticated) {
@@ -18,15 +19,24 @@ export default function SelfClientLoginPage() {
     }
   }, [isCheckingSession, isAuthenticated, router]);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
       setError("Please enter both email and password.");
       return;
     }
+    
     setError("");
-    login(email.trim());
-    router.push("/self-client");
+    setLoading(true);
+
+    try {
+      await login(email.trim(), password.trim());
+      router.push("/self-client");
+    } catch (err: any) {
+      setError(err.message || "Failed to sign in. Please check your credentials.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,13 +50,9 @@ export default function SelfClientLoginPage() {
           Sign in to track your services, upload documents, and manage payments.
         </p>
 
-        <p className="login-demo-note">
-          Demo mode: this portal runs on mock data with no backend yet. Any email and password will sign you in.
-        </p>
-
         <form className="portal-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label" htmlFor="email">Email</label>
+            <label className="form-label" htmlFor="email">Email Address</label>
             <input
               id="email"
               type="email"
@@ -55,8 +61,11 @@ export default function SelfClientLoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               autoComplete="email"
+              disabled={loading}
+              required
             />
           </div>
+          
           <div className="form-group">
             <label className="form-label" htmlFor="password">Password</label>
             <input
@@ -67,19 +76,24 @@ export default function SelfClientLoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               autoComplete="current-password"
+              disabled={loading}
+              required
             />
           </div>
 
           {error && <p className="form-error">{error}</p>}
 
-          <button type="submit" className="btn btn-primary login-submit-btn">
-            Login
+          <button 
+            type="submit" 
+            className="btn btn-primary login-submit-btn"
+            disabled={loading}
+          >
+            {loading ? "Signing in..." : "Login"}
           </button>
         </form>
 
         <p className="login-footer-note">
-          New here? Submitting a request from the <Link href="/#services">Services</Link> section on our website
-          will create your Self Client profile automatically.
+          New client? <Link href="/self-client/signup">Create an account</Link> to get started with our services.
         </p>
       </div>
     </div>

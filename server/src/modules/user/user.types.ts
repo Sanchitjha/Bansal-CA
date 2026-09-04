@@ -1,4 +1,6 @@
 import { Types } from "mongoose";
+import { IClientWithId } from "../client/client.types";
+import { IPartnerWithId } from "../partner/partner.types";
 
 export type UserStatus = "INVITED" | "ACTIVE" | "SUSPENDED" | "DEACTIVATED";
 
@@ -12,6 +14,7 @@ export interface IUser {
   roleId: Types.ObjectId; // References Role
   status: UserStatus;
   lastLoginAt?: Date;
+  password?: string;
 }
 
 export interface IUserWithId extends Omit<IUser, "roleId" | "passwordHash"> {
@@ -32,6 +35,48 @@ export type CreateUserInput = Omit<IUser, "status" | "passwordHash"> & {
 };
 export type UpdateUserInput = Partial<Omit<IUser, "passwordHash">> & { password?: string };
 
+export interface SignupInput {
+  email: string;
+  password?: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  legalName?: string;
+  clientType?: "INDIVIDUAL" | "BUSINESS";
+}
+
+export interface PartnerSignupInput {
+  email: string;
+  password?: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  legalName?: string;
+  displayName?: string;
+  partnerType?: "INDIVIDUAL" | "AGENCY";
+  pan: string;
+  addressLine1?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+}
+
+export interface LoginInput {
+  email: string;
+  password?: string;
+}
+
+export interface AuthResponse {
+  user: IUserWithId;
+  client: IClientWithId;
+}
+
+export interface PartnerAuthResponse {
+  user: IUserWithId;
+  partner: IPartnerWithId;
+}
+
 export interface IUserRepository {
   findAll(): Promise<IUserWithId[]>;
   findById(id: string): Promise<IUserWithId | null>;
@@ -51,4 +96,10 @@ export interface IUserService {
   createUser(data: CreateUserInput): Promise<IUserWithId>;
   updateUser(id: string, data: UpdateUserInput): Promise<IUserWithId>;
   deleteUser(id: string): Promise<void>;
+  signup(data: SignupInput): Promise<AuthResponse>;
+  login(data: LoginInput): Promise<AuthResponse>;
+  adminLogin(data: LoginInput): Promise<{ user: IUserWithId }>;
+  partnerSignup(data: PartnerSignupInput): Promise<PartnerAuthResponse>;
+  partnerLogin(data: LoginInput): Promise<PartnerAuthResponse>;
 }
+

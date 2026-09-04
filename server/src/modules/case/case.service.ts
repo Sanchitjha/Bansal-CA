@@ -14,7 +14,10 @@ export class CaseService {
   constructor(private readonly caseRepository: CaseRepository) {}
 
   // Case Methods
-  public async getCases(): Promise<ICaseWithId[]> {
+  public async getCases(clientId?: string): Promise<ICaseWithId[]> {
+    if (clientId) {
+      return this.caseRepository.findByClientId(clientId);
+    }
     return this.caseRepository.findAll();
   }
 
