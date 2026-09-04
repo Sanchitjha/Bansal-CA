@@ -1,5 +1,9 @@
 import { App } from "./app";
+import { Authenticate } from "./common/middlewares/auth.middleware";
 import { Database } from "./config/database";
+import { AuthController } from "./modules/auth/auth.controller";
+import { AuthRoute } from "./modules/auth/auth.route";
+import { AuthService } from "./modules/auth/auth.service";
 import { UserController } from "./modules/user/user.controller";
 import { UserRepository } from "./modules/user/user.repository";
 import { UserRoute } from "./modules/user/user.route";
@@ -42,7 +46,13 @@ async function bootstrap(): Promise<void> {
   const userRepository = new UserRepository();
   const userService = new UserService(userRepository);
   const userController = new UserController(userService);
-  const userRoute = new UserRoute(userController);
+
+  const authService = new AuthService(userRepository, roleRepository);
+  const authController = new AuthController(authService);
+  const authenticate = new Authenticate(authService);
+  const authRoute = new AuthRoute(authController, authenticate);
+
+  const userRoute = new UserRoute(userController, authenticate);
 
   const partnerRepository = new PartnerRepository();
   const partnerService = new PartnerService(partnerRepository);
@@ -75,6 +85,7 @@ async function bootstrap(): Promise<void> {
   const financeRoute = new FinanceRoute(financeController);
 
   const app = new App([
+    authRoute,
     userRoute,
     roleRoute,
     partnerRoute,
