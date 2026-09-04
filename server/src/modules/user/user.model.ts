@@ -8,6 +8,7 @@ const userSchema = new Schema<IUser>(
     phone: { type: String, trim: true },
     firstName: { type: String, required: true, trim: true },
     lastName: { type: String, required: true, trim: true },
+    passwordHash: { type: String, select: false },
     roleId: { type: Schema.Types.ObjectId, ref: "Role", required: true },
     status: {
       type: String,
