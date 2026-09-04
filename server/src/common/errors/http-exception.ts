@@ -14,6 +14,18 @@ export class BadRequestException extends HttpException {
   }
 }
 
+export class UnauthorizedException extends HttpException {
+  constructor(message = "Authentication required") {
+    super(401, message);
+  }
+}
+
+export class ForbiddenException extends HttpException {
+  constructor(message = "Insufficient permissions") {
+    super(403, message);
+  }
+}
+
 export class NotFoundException extends HttpException {
   constructor(message = "Resource not found") {
     super(404, message);
