@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
+import { setToken } from "@/lib/api";
 import {
   mockAdminProfile,
   mockLeads,
@@ -413,7 +414,11 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
     const resData = await res.json();
     const user = resData.user;
-    
+
+    if (resData.token) {
+      setToken(resData.token);
+    }
+
     const nextSession: AdminSession = {
       email: user.email,
       name: `${user.firstName} ${user.lastName}`,
@@ -430,6 +435,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setSession(null);
+    setToken(null);
     window.localStorage.removeItem(SESSION_KEY);
   };
 

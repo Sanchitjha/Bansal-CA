@@ -70,11 +70,21 @@ export interface LoginInput {
 export interface AuthResponse {
   user: IUserWithId;
   client: IClientWithId;
+  token: string;
+  expiresIn: string;
 }
 
 export interface PartnerAuthResponse {
   user: IUserWithId;
   partner: IPartnerWithId;
+  token: string;
+  expiresIn: string;
+}
+
+export interface AdminAuthResponse {
+  user: IUserWithId;
+  token: string;
+  expiresIn: string;
 }
 
 export interface IUserRepository {
@@ -98,7 +108,7 @@ export interface IUserService {
   deleteUser(id: string): Promise<void>;
   signup(data: SignupInput): Promise<AuthResponse>;
   login(data: LoginInput): Promise<AuthResponse>;
-  adminLogin(data: LoginInput): Promise<{ user: IUserWithId }>;
+  adminLogin(data: LoginInput): Promise<AdminAuthResponse>;
   partnerSignup(data: PartnerSignupInput): Promise<PartnerAuthResponse>;
   partnerLogin(data: LoginInput): Promise<PartnerAuthResponse>;
 }

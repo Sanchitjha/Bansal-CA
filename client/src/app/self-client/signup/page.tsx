@@ -1,25 +1,95 @@
 "use client";
 
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { z } from "zod";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { FieldError } from "@/components/ui/field-error";
 import { useSelfClient } from "@/components/self-client/SelfClientProvider";
+
+const signupSchema = z
+  .object({
+    firstName: z.string().min(1, "First name is required").max(60),
+    lastName: z.string().min(1, "Last name is required").max(60),
+    email: z.string().min(1, "Email is required").email("Enter a valid email"),
+    phone: z.string().optional().or(z.literal("")),
+    clientType: z.enum(["INDIVIDUAL", "BUSINESS"]),
+    legalName: z.string().optional().or(z.literal("")),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  })
+  .refine(
+    (data) =>
+      data.clientType !== "BUSINESS" ||
+      (data.legalName && data.legalName.trim().length > 0),
+    {
+      message: "Company / legal name is required for business accounts",
+      path: ["legalName"],
+    }
+  );
+
+type SignupFormValues = z.infer<typeof signupSchema>;
 
 export default function SelfClientSignupPage() {
   const router = useRouter();
   const { isAuthenticated, isCheckingSession, signup } = useSelfClient();
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [clientType, setClientType] = useState<"INDIVIDUAL" | "BUSINESS">("INDIVIDUAL");
-  const [legalName, setLegalName] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      clientType: "INDIVIDUAL",
+      legalName: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const clientType = watch("clientType");
+
+  const signupMutation = useMutation({
+    mutationFn: async (values: SignupFormValues) => {
+      await signup({
+        email: values.email.trim(),
+        password: values.password,
+        firstName: values.firstName.trim(),
+        lastName: values.lastName.trim(),
+        phone: values.phone?.trim() || undefined,
+        legalName:
+          values.legalName?.trim() || `${values.firstName.trim()} ${values.lastName.trim()}`,
+        clientType: values.clientType,
+      });
+    },
+    onSuccess: () => {
+      toast.success("Account created — welcome!");
+      router.push("/self-client");
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to register. Please try again.");
+    },
+  });
 
   useEffect(() => {
     if (!isCheckingSession && isAuthenticated) {
@@ -27,189 +97,162 @@ export default function SelfClientSignupPage() {
     }
   }, [isCheckingSession, isAuthenticated, router]);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-
-    if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
-      setError("Please fill in all required fields.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long.");
-      return;
-    }
-
-    setError("");
-    setLoading(true);
-
-    try {
-      await signup({
-        email: email.trim(),
-        password: password,
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        phone: phone.trim() || undefined,
-        legalName: legalName.trim() || `${firstName.trim()} ${lastName.trim()}`,
-        clientType,
-      });
-      router.push("/self-client");
-    } catch (err: any) {
-      setError(err.message || "Failed to register. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const submitting = signupMutation.isPending;
 
   return (
-    <div className="login-page">
-      <div className="login-card" style={{ maxWidth: "500px" }}>
-        <Link href="/" className="logo login-logo">
-          A&A<span>.</span>
-        </Link>
-        <h1 className="login-title">Create Client Account</h1>
-        <p className="login-subtitle">
-          Register to access your self-service dashboard, view quotes, and track updates.
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
+      <Card className="w-full max-w-lg shadow-lg">
+        <CardContent className="p-8 space-y-6">
+          <div className="text-center space-y-2">
+            <Link href="/" className="inline-block text-2xl font-semibold text-[#0B1528]">
+              A&amp;A<span className="text-[#E35A37]">.</span>
+            </Link>
+            <h1 className="text-2xl font-semibold text-slate-900">Create Client Account</h1>
+            <p className="text-sm text-slate-500">
+              Register to access your dashboard, view quotes, and track updates.
+            </p>
+          </div>
 
-        <form className="portal-form" onSubmit={handleSubmit}>
-          <div style={{ display: "flex", gap: "1rem" }}>
-            <div className="form-group" style={{ flex: 1 }}>
-              <label className="form-label" htmlFor="firstName">First Name *</label>
-              <input
-                id="firstName"
-                type="text"
-                className="form-input"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder="John"
-                disabled={loading}
-                required
+          <form
+            className="space-y-4"
+            onSubmit={handleSubmit((v) => signupMutation.mutate(v))}
+            noValidate
+          >
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="firstName">First Name *</Label>
+                <Input
+                  id="firstName"
+                  placeholder="John"
+                  disabled={submitting}
+                  aria-invalid={!!errors.firstName}
+                  {...register("firstName")}
+                />
+                <FieldError message={errors.firstName?.message} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="lastName">Last Name *</Label>
+                <Input
+                  id="lastName"
+                  placeholder="Doe"
+                  disabled={submitting}
+                  aria-invalid={!!errors.lastName}
+                  {...register("lastName")}
+                />
+                <FieldError message={errors.lastName?.message} />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="email">Email Address *</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="john.doe@example.com"
+                autoComplete="email"
+                disabled={submitting}
+                aria-invalid={!!errors.email}
+                {...register("email")}
+              />
+              <FieldError message={errors.email?.message} />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="+91 XXXXX XXXXX"
+                autoComplete="tel"
+                disabled={submitting}
+                {...register("phone")}
               />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
-              <label className="form-label" htmlFor="lastName">Last Name *</label>
-              <input
-                id="lastName"
-                type="text"
-                className="form-input"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder="Doe"
-                disabled={loading}
-                required
-              />
-            </div>
-          </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="email">Email Address *</label>
-            <input
-              id="email"
-              type="email"
-              className="form-input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="john.doe@example.com"
-              disabled={loading}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label" htmlFor="phone">Phone Number</label>
-            <input
-              id="phone"
-              type="tel"
-              className="form-input"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+91 XXXXX XXXXX"
-              disabled={loading}
-            />
-          </div>
-
-          <div style={{ display: "flex", gap: "1rem" }}>
-            <div className="form-group" style={{ flex: 1 }}>
-              <label className="form-label" htmlFor="clientType">Client Type *</label>
-              <select
-                id="clientType"
-                className="form-select"
-                value={clientType}
-                onChange={(e) => setClientType(e.target.value as "INDIVIDUAL" | "BUSINESS")}
-                disabled={loading}
-                required
-              >
+            <div className="space-y-1.5">
+              <Label htmlFor="clientType">Client Type *</Label>
+              <Select id="clientType" disabled={submitting} {...register("clientType")}>
                 <option value="INDIVIDUAL">Individual</option>
                 <option value="BUSINESS">Business Entity</option>
-              </select>
+              </Select>
             </div>
-          </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="legalName">
-              {clientType === "BUSINESS" ? "Company / Legal Name *" : "Legal Name (for filings)"}
-            </label>
-            <input
-              id="legalName"
-              type="text"
-              className="form-input"
-              value={legalName}
-              onChange={(e) => setLegalName(e.target.value)}
-              placeholder={clientType === "BUSINESS" ? "Acme Corp Ltd" : "John Doe (leave blank to use First + Last Name)"}
-              disabled={loading}
-              required={clientType === "BUSINESS"}
-            />
-          </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="legalName">
+                {clientType === "BUSINESS"
+                  ? "Company / Legal Name *"
+                  : "Legal Name (for filings)"}
+              </Label>
+              <Input
+                id="legalName"
+                placeholder={
+                  clientType === "BUSINESS"
+                    ? "Acme Corp Ltd"
+                    : "Leave blank to use First + Last Name"
+                }
+                disabled={submitting}
+                aria-invalid={!!errors.legalName}
+                {...register("legalName")}
+              />
+              <FieldError message={errors.legalName?.message} />
+            </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="password">Password *</label>
-            <input
-              id="password"
-              type="password"
-              className="form-input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              disabled={loading}
-              required
-            />
-          </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="password">Password *</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                autoComplete="new-password"
+                disabled={submitting}
+                aria-invalid={!!errors.password}
+                {...register("password")}
+              />
+              <FieldError message={errors.password?.message} />
+            </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="confirmPassword">Confirm Password *</label>
-            <input
-              id="confirmPassword"
-              type="password"
-              className="form-input"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="••••••••"
-              disabled={loading}
-              required
-            />
-          </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="confirmPassword">Confirm Password *</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                autoComplete="new-password"
+                disabled={submitting}
+                aria-invalid={!!errors.confirmPassword}
+                {...register("confirmPassword")}
+              />
+              <FieldError message={errors.confirmPassword?.message} />
+            </div>
 
-          {error && <p className="form-error">{error}</p>}
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              disabled={submitting}
+              className="w-full"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Creating account…
+                </>
+              ) : (
+                "Sign Up"
+              )}
+            </Button>
+          </form>
 
-          <button
-            type="submit"
-            className="btn btn-primary login-submit-btn"
-            disabled={loading}
-          >
-            {loading ? "Creating Account..." : "Sign Up"}
-          </button>
-        </form>
-
-        <p className="login-footer-note">
-          Already have an account? <Link href="/self-client/login">Sign in here</Link>.
-        </p>
-      </div>
+          <p className="text-center text-sm text-slate-500">
+            Already have an account?{" "}
+            <Link
+              href="/self-client/login"
+              className="font-medium text-[#E35A37] hover:text-[#C84626]"
+            >
+              Sign in here
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -14,6 +14,22 @@ import {
   LoginResult,
 } from "./auth.types";
 
+/** Sign a JWT for an authenticated user. Shared by AuthService and UserService. */
+export function signAuthToken(payload: AuthTokenPayload): string {
+  return jwt.sign(payload, env.jwtSecret, {
+    expiresIn: env.jwtExpiresIn,
+  } as SignOptions);
+}
+
+/** Verify a JWT and return its payload, or throw UnauthorizedException. */
+export function verifyAuthToken(token: string): AuthTokenPayload {
+  try {
+    return jwt.verify(token, env.jwtSecret) as AuthTokenPayload;
+  } catch {
+    throw new UnauthorizedException("Invalid or expired token");
+  }
+}
+
 export class AuthService implements IAuthService {
   constructor(
     private readonly userRepository: IUserRepository,
@@ -50,9 +66,7 @@ export class AuthService implements IAuthService {
       roleName: role.name,
       permissions: role.permissions ?? [],
     };
-    const token = jwt.sign(payload, env.jwtSecret, {
-      expiresIn: env.jwtExpiresIn,
-    } as SignOptions);
+    const token = signAuthToken(payload);
 
     await this.userRepository.updateLastLogin(user.id);
 
@@ -72,11 +86,7 @@ export class AuthService implements IAuthService {
   }
 
   public verifyToken(token: string): AuthTokenPayload {
-    try {
-      return jwt.verify(token, env.jwtSecret) as AuthTokenPayload;
-    } catch {
-      throw new UnauthorizedException("Invalid or expired token");
-    }
+    return verifyAuthToken(token);
   }
 
   public async hashPassword(plain: string): Promise<string> {

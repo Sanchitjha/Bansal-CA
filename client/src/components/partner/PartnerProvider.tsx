@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { setToken } from "@/lib/api";
 
 const SESSION_KEY = "aa_partner_session";
 
@@ -305,7 +306,14 @@ export function PartnerProvider({ children }: { children: ReactNode }) {
       throw new Error(data.message || "Invalid email or password.");
     }
 
-    const sessionData: PartnerSession = await res.json();
+    const responseData = await res.json();
+    if (responseData.token) {
+      setToken(responseData.token);
+    }
+    const sessionData: PartnerSession = {
+      user: responseData.user,
+      partner: responseData.partner,
+    };
     setSession(sessionData);
     window.localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
   };
@@ -322,7 +330,14 @@ export function PartnerProvider({ children }: { children: ReactNode }) {
       throw new Error(data.message || "Failed to create partner account. Try again.");
     }
 
-    const sessionData: PartnerSession = await res.json();
+    const responseData = await res.json();
+    if (responseData.token) {
+      setToken(responseData.token);
+    }
+    const sessionData: PartnerSession = {
+      user: responseData.user,
+      partner: responseData.partner,
+    };
     setSession(sessionData);
     window.localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
   };
@@ -335,6 +350,7 @@ export function PartnerProvider({ children }: { children: ReactNode }) {
     setTasks([]);
     setKycDocuments([]);
     setNotifications([]);
+    setToken(null);
     window.localStorage.removeItem(SESSION_KEY);
     router.push("/partner/login");
   };

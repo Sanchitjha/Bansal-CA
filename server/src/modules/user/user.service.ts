@@ -4,6 +4,9 @@ import { RoleModel } from "../role/role.model";
 import { ClientModel } from "../client/client.model";
 import { PartnerModel } from "../partner/partner.model";
 import { hashPassword } from "./user.utils";
+import { signAuthToken } from "../auth/auth.service";
+import { env } from "../../config/env";
+import { AuthTokenPayload } from "../auth/auth.types";
 import {
   CreateUserInput,
   IUserRepository,
@@ -13,9 +16,22 @@ import {
   SignupInput,
   LoginInput,
   AuthResponse,
+  AdminAuthResponse,
   PartnerSignupInput,
   PartnerAuthResponse,
 } from "./user.types";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function issueTokenForUser(userDoc: any, roleDoc: any): string {
+  const payload: AuthTokenPayload = {
+    sub: String(userDoc._id),
+    email: userDoc.email,
+    roleId: String(roleDoc._id),
+    roleName: roleDoc.name,
+    permissions: roleDoc.permissions ?? [],
+  };
+  return signAuthToken(payload);
+}
 
 export class UserService implements IUserService {
   constructor(private readonly userRepository: IUserRepository) {}
@@ -141,6 +157,8 @@ export class UserService implements IUserService {
     return {
       user: userResponse,
       client: clientResponse,
+      token: issueTokenForUser(userDoc, clientRole),
+      expiresIn: env.jwtExpiresIn,
     };
   }
 
@@ -150,7 +168,7 @@ export class UserService implements IUserService {
       throw new BadRequestException("Email and password are required");
     }
 
-    const userDoc = await UserModel.findOne({ email: email.toLowerCase() }).select("+password");
+    const userDoc = await UserModel.findOne({ email: email.toLowerCase() }).select("+password").populate("roleId");
     if (!userDoc || !userDoc.password) {
       throw new BadRequestException("Invalid email or password");
     }
@@ -158,6 +176,11 @@ export class UserService implements IUserService {
     const hashedPassword = hashPassword(password);
     if (userDoc.password !== hashedPassword) {
       throw new BadRequestException("Invalid email or password");
+    }
+
+    const clientRoleDoc: any = userDoc.roleId;
+    if (!clientRoleDoc || typeof clientRoleDoc !== "object" || !("name" in clientRoleDoc)) {
+      throw new NotFoundException("Role information missing for this user");
     }
 
     const clientDoc = await ClientModel.findOne({ userId: userDoc._id });
@@ -174,7 +197,7 @@ export class UserService implements IUserService {
       phone: userDoc.phone,
       firstName: userDoc.firstName,
       lastName: userDoc.lastName,
-      roleId: String(userDoc.roleId),
+      roleId: String(clientRoleDoc._id),
       status: userDoc.status,
       externalAuthId: userDoc.externalAuthId,
       lastLoginAt: userDoc.lastLoginAt,
@@ -199,10 +222,12 @@ export class UserService implements IUserService {
     return {
       user: userResponse,
       client: clientResponse,
+      token: issueTokenForUser(userDoc, clientRoleDoc),
+      expiresIn: env.jwtExpiresIn,
     };
   }
 
-  public async adminLogin(data: LoginInput): Promise<{ user: IUserWithId }> {
+  public async adminLogin(data: LoginInput): Promise<AdminAuthResponse> {
     const { email, password } = data;
     if (!email || !password) {
       throw new BadRequestException("Email and password are required");
@@ -242,6 +267,8 @@ export class UserService implements IUserService {
 
     return {
       user: userResponse,
+      token: issueTokenForUser(userDoc, roleDoc),
+      expiresIn: env.jwtExpiresIn,
     };
   }
 
@@ -359,6 +386,8 @@ export class UserService implements IUserService {
     return {
       user: userResponse,
       partner: partnerResponse,
+      token: issueTokenForUser(userDoc, partnerRole),
+      expiresIn: env.jwtExpiresIn,
     };
   }
 
@@ -438,6 +467,8 @@ export class UserService implements IUserService {
     return {
       user: userResponse,
       partner: partnerResponse,
+      token: issueTokenForUser(userDoc, roleDoc),
+      expiresIn: env.jwtExpiresIn,
     };
   }
 }

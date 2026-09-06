@@ -1,33 +1,92 @@
 "use client";
 
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { z } from "zod";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { FieldError } from "@/components/ui/field-error";
 import { usePartner } from "@/components/partner/PartnerProvider";
+
+const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
+
+const partnerSignupSchema = z.object({
+  firstName: z.string().min(1, "First name is required").max(60),
+  lastName: z.string().min(1, "Last name is required").max(60),
+  email: z.string().min(1, "Email is required").email("Enter a valid email"),
+  phone: z.string().optional().or(z.literal("")),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  legalName: z.string().optional().or(z.literal("")),
+  displayName: z.string().optional().or(z.literal("")),
+  partnerType: z.enum(["INDIVIDUAL", "AGENCY"]),
+  pan: z
+    .string()
+    .min(1, "PAN is required")
+    .transform((v) => v.toUpperCase())
+    .refine((v) => PAN_REGEX.test(v), "Enter a valid 10-character PAN (e.g. ABCDE1234F)"),
+  addressLine1: z.string().optional().or(z.literal("")),
+  city: z.string().optional().or(z.literal("")),
+  state: z.string().optional().or(z.literal("")),
+  postalCode: z.string().optional().or(z.literal("")),
+  country: z.string().optional().or(z.literal("")),
+});
+
+type PartnerSignupValues = z.infer<typeof partnerSignupSchema>;
 
 export default function PartnerSignupPage() {
   const router = useRouter();
   const { isAuthenticated, isCheckingSession, signup } = usePartner();
-  
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    firstName: "",
-    lastName: "",
-    phone: "",
-    legalName: "",
-    displayName: "",
-    partnerType: "INDIVIDUAL",
-    pan: "",
-    addressLine1: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    country: "India",
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<PartnerSignupValues>({
+    resolver: zodResolver(partnerSignupSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      password: "",
+      legalName: "",
+      displayName: "",
+      partnerType: "INDIVIDUAL",
+      pan: "",
+      addressLine1: "",
+      city: "",
+      state: "",
+      postalCode: "",
+      country: "India",
+    },
   });
-  
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+
+  const signupMutation = useMutation({
+    mutationFn: async (values: PartnerSignupValues) => {
+      await signup({
+        ...values,
+        email: values.email.trim(),
+        firstName: values.firstName.trim(),
+        lastName: values.lastName.trim(),
+      });
+    },
+    onSuccess: () => {
+      toast.success("Partner account created — welcome aboard!");
+      router.push("/partner");
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Registration failed. Please check your inputs.");
+    },
+  });
 
   useEffect(() => {
     if (!isCheckingSession && isAuthenticated) {
@@ -35,262 +94,204 @@ export default function PartnerSignupPage() {
     }
   }, [isCheckingSession, isAuthenticated, router]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError("");
-
-    // Simple validation
-    if (
-      !formData.email ||
-      !formData.password ||
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.pan
-    ) {
-      setError("Please fill in all required fields (Email, Password, First & Last Name, and PAN).");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      await signup(formData);
-      router.push("/partner");
-    } catch (err: any) {
-      setError(err.message || "Registration failed. Please check your inputs.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const submitting = signupMutation.isPending;
 
   return (
-    <div className="login-page" style={{ padding: "40px 20px" }}>
-      <div className="login-card" style={{ maxWidth: "600px" }}>
-        <Link href="/" className="logo login-logo">
-          A&A<span>.</span>
-        </Link>
-        <h1 className="login-title">Partner Registration</h1>
-        <p className="login-subtitle" style={{ marginBottom: "24px" }}>
-          Join our channel partner program to refer clients and earn a share of active service revenues.
-        </p>
-
-        <form className="portal-form" onSubmit={handleSubmit}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="firstName">First Name *</label>
-              <input
-                id="firstName"
-                name="firstName"
-                type="text"
-                className="form-input"
-                value={formData.firstName}
-                onChange={handleChange}
-                placeholder="John"
-                disabled={loading}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="lastName">Last Name *</label>
-              <input
-                id="lastName"
-                name="lastName"
-                type="text"
-                className="form-input"
-                value={formData.lastName}
-                onChange={handleChange}
-                placeholder="Doe"
-                disabled={loading}
-                required
-              />
-            </div>
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
+      <Card className="w-full max-w-2xl shadow-lg">
+        <CardContent className="p-8 space-y-6">
+          <div className="text-center space-y-2">
+            <Link href="/" className="inline-block text-2xl font-semibold text-[#0B1528]">
+              A&amp;A<span className="text-[#E35A37]">.</span>
+            </Link>
+            <h1 className="text-2xl font-semibold text-slate-900">Partner Registration</h1>
+            <p className="text-sm text-slate-500">
+              Join our channel partner program to refer clients and earn a share of active service revenues.
+            </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="email">Email Address *</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                className="form-input"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="john@example.com"
-                disabled={loading}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="phone">Phone Number</label>
-              <input
-                id="phone"
-                name="phone"
-                type="text"
-                className="form-input"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="+91 98765 43210"
-                disabled={loading}
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label" htmlFor="password">Create Password *</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              className="form-input"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              disabled={loading}
-              required
-            />
-          </div>
-
-          <div className="portal-divider" style={{ margin: "24px 0 16px", borderBottom: "1px solid var(--color-border)", opacity: 0.3 }}></div>
-          <h2 style={{ fontSize: "1.1rem", marginBottom: "16px", color: "var(--color-text-primary)" }}>Business & Payout Details</h2>
-
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "16px" }}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="legalName">Legal Business / Entity Name</label>
-              <input
-                id="legalName"
-                name="legalName"
-                type="text"
-                className="form-input"
-                value={formData.legalName}
-                onChange={handleChange}
-                placeholder="John Doe Consulting LLP"
-                disabled={loading}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="partnerType">Partner Type</label>
-              <select
-                id="partnerType"
-                name="partnerType"
-                className="form-select"
-                value={formData.partnerType}
-                onChange={handleChange}
-                disabled={loading}
-              >
-                <option value="INDIVIDUAL">Individual</option>
-                <option value="AGENCY">Agency</option>
-              </select>
-            </div>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="displayName">Display Name / Brand</label>
-              <input
-                id="displayName"
-                name="displayName"
-                type="text"
-                className="form-input"
-                value={formData.displayName}
-                onChange={handleChange}
-                placeholder="John Doe Services"
-                disabled={loading}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="pan">PAN Card Number *</label>
-              <input
-                id="pan"
-                name="pan"
-                type="text"
-                className="form-input"
-                value={formData.pan}
-                onChange={handleChange}
-                placeholder="ABCDE1234F"
-                disabled={loading}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label" htmlFor="addressLine1">Address Line 1</label>
-            <input
-              id="addressLine1"
-              name="addressLine1"
-              type="text"
-              className="form-input"
-              value={formData.addressLine1}
-              onChange={handleChange}
-              placeholder="123 Corporate Tower, Sector 62"
-              disabled={loading}
-            />
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="city">City</label>
-              <input
-                id="city"
-                name="city"
-                type="text"
-                className="form-input"
-                value={formData.city}
-                onChange={handleChange}
-                placeholder="Noida"
-                disabled={loading}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="state">State</label>
-              <input
-                id="state"
-                name="state"
-                type="text"
-                className="form-input"
-                value={formData.state}
-                onChange={handleChange}
-                placeholder="Uttar Pradesh"
-                disabled={loading}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="postalCode">Postal Code</label>
-              <input
-                id="postalCode"
-                name="postalCode"
-                type="text"
-                className="form-input"
-                value={formData.postalCode}
-                onChange={handleChange}
-                placeholder="201301"
-                disabled={loading}
-              />
-            </div>
-          </div>
-
-          {error && <p className="form-error">{error}</p>}
-
-          <button
-            type="submit"
-            className="btn btn-primary login-submit-btn"
-            disabled={loading}
-            style={{ marginTop: "16px" }}
+          <form
+            className="space-y-4"
+            onSubmit={handleSubmit((v) => signupMutation.mutate(v))}
+            noValidate
           >
-            {loading ? "Registering Account..." : "Register as Partner"}
-          </button>
-        </form>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="firstName">First Name *</Label>
+                <Input
+                  id="firstName"
+                  placeholder="John"
+                  disabled={submitting}
+                  aria-invalid={!!errors.firstName}
+                  {...register("firstName")}
+                />
+                <FieldError message={errors.firstName?.message} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="lastName">Last Name *</Label>
+                <Input
+                  id="lastName"
+                  placeholder="Doe"
+                  disabled={submitting}
+                  aria-invalid={!!errors.lastName}
+                  {...register("lastName")}
+                />
+                <FieldError message={errors.lastName?.message} />
+              </div>
+            </div>
 
-        <p className="login-footer-note" style={{ marginTop: "24px" }}>
-          Already have a partner account? <Link href="/partner/login">Login here</Link>
-        </p>
-      </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="email">Email Address *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="john@example.com"
+                  autoComplete="email"
+                  disabled={submitting}
+                  aria-invalid={!!errors.email}
+                  {...register("email")}
+                />
+                <FieldError message={errors.email?.message} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="+91 98765 43210"
+                  disabled={submitting}
+                  {...register("phone")}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="password">Create Password *</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                autoComplete="new-password"
+                disabled={submitting}
+                aria-invalid={!!errors.password}
+                {...register("password")}
+              />
+              <FieldError message={errors.password?.message} />
+            </div>
+
+            <div className="pt-4 border-t border-slate-200">
+              <h2 className="text-base font-semibold text-slate-900 mb-3">
+                Business &amp; Payout Details
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="col-span-2 space-y-1.5">
+                <Label htmlFor="legalName">Legal Business / Entity Name</Label>
+                <Input
+                  id="legalName"
+                  placeholder="John Doe Consulting LLP"
+                  disabled={submitting}
+                  {...register("legalName")}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="partnerType">Partner Type</Label>
+                <Select id="partnerType" disabled={submitting} {...register("partnerType")}>
+                  <option value="INDIVIDUAL">Individual</option>
+                  <option value="AGENCY">Agency</option>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="displayName">Display Name / Brand</Label>
+                <Input
+                  id="displayName"
+                  placeholder="John Doe Services"
+                  disabled={submitting}
+                  {...register("displayName")}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="pan">PAN Card Number *</Label>
+                <Input
+                  id="pan"
+                  placeholder="ABCDE1234F"
+                  maxLength={10}
+                  disabled={submitting}
+                  aria-invalid={!!errors.pan}
+                  {...register("pan")}
+                />
+                <FieldError message={errors.pan?.message} />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="addressLine1">Address Line 1</Label>
+              <Input
+                id="addressLine1"
+                placeholder="123 Corporate Tower, Sector 62"
+                disabled={submitting}
+                {...register("addressLine1")}
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="city">City</Label>
+                <Input id="city" placeholder="Noida" disabled={submitting} {...register("city")} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="state">State</Label>
+                <Input
+                  id="state"
+                  placeholder="Uttar Pradesh"
+                  disabled={submitting}
+                  {...register("state")}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="postalCode">Postal Code</Label>
+                <Input
+                  id="postalCode"
+                  placeholder="201301"
+                  disabled={submitting}
+                  {...register("postalCode")}
+                />
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              disabled={submitting}
+              className="w-full mt-2"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Registering account…
+                </>
+              ) : (
+                "Register as Partner"
+              )}
+            </Button>
+          </form>
+
+          <p className="text-center text-sm text-slate-500">
+            Already have a partner account?{" "}
+            <Link
+              href="/partner/login"
+              className="font-medium text-[#E35A37] hover:text-[#C84626]"
+            >
+              Login here
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

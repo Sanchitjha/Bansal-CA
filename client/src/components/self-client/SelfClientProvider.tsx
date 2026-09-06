@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
+import { setToken } from "@/lib/api";
 import {
   mockMessages,
   mockNotifications,
@@ -289,7 +290,14 @@ export function SelfClientProvider({ children }: { children: ReactNode }) {
       throw new Error(data.message || "Invalid credentials. Please try again.");
     }
 
-    const sessionData: SelfClientSession = await res.json();
+    const responseData = await res.json();
+    if (responseData.token) {
+      setToken(responseData.token);
+    }
+    const sessionData: SelfClientSession = {
+      user: responseData.user,
+      client: responseData.client,
+    };
     setSession(sessionData);
     window.localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
   };
@@ -314,7 +322,14 @@ export function SelfClientProvider({ children }: { children: ReactNode }) {
       throw new Error(data.message || "Failed to register. Please check details and try again.");
     }
 
-    const sessionData: SelfClientSession = await res.json();
+    const responseData = await res.json();
+    if (responseData.token) {
+      setToken(responseData.token);
+    }
+    const sessionData: SelfClientSession = {
+      user: responseData.user,
+      client: responseData.client,
+    };
     setSession(sessionData);
     window.localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
   };
@@ -325,6 +340,7 @@ export function SelfClientProvider({ children }: { children: ReactNode }) {
     setTasks([]);
     setDocuments([]);
     setPayments([]);
+    setToken(null);
     window.localStorage.removeItem(SESSION_KEY);
   };
 
