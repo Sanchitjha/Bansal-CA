@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Activity,
@@ -15,21 +14,30 @@ import {
   HardDrive,
   Cpu,
   Zap,
-  Terminal
+  Terminal,
+  Search,
+  Check,
+  Copy,
+  Filter,
+  Layers,
+  Radio
 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminObservabilityPage() {
   const [refreshing, setRefreshing] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [levelFilter, setLevelFilter] = useState("ALL");
 
   // System Health Components
   const [systemHealth, setSystemHealth] = useState({
     apiStatus: "HEALTHY",
     databaseStatus: "CONNECTED",
     queueDepth: 4,
-    routingLatencyMs: 42,
+    routingLatencyMs: 28,
     documentWorkerStatus: "ONLINE",
-    errorRatePct: 0.12,
+    errorRatePct: 0.04,
     activeWorkers: 6,
     uptimeSeconds: 849200,
   });
@@ -42,7 +50,7 @@ export default function AdminObservabilityPage() {
       correlationId: "corr-f6a5-req-1042",
       service: "RoutingEngine",
       level: "INFO",
-      message: "Request AA-CASE-1042 matched strategy LEAST_LOADED to partner PTR-101. Match latency: 38ms.",
+      message: "Request AA-CASE-1042 matched strategy LEAST_LOADED to partner PTR-101. Match latency: 28ms.",
     },
     {
       id: "EVT-9042",
@@ -50,7 +58,7 @@ export default function AdminObservabilityPage() {
       correlationId: "corr-f6a5-doc-gen",
       service: "DocumentService",
       level: "INFO",
-      message: "Statutory Certificate generated for case AA-CASE-0988. SHA-256 integrity hash committed.",
+      message: "Statutory Certificate generated for case AA-CASE-0988. SHA-256 integrity hash committed to audit ledger.",
     },
     {
       id: "EVT-9043",
@@ -68,52 +76,86 @@ export default function AdminObservabilityPage() {
       level: "WARN",
       message: "Unroutable request AA-CASE-1088 placed in Exception Queue. Reason: Specialization credential unavailable.",
     },
+    {
+      id: "EVT-9045",
+      timestamp: "2026-09-07 02:49:50.012",
+      correlationId: "corr-f6a5-auth-sync",
+      service: "IdentityService",
+      level: "INFO",
+      message: "Session token validated for admin@bansalca.com. Multi-tenant context resolved to tenant AA-PROD-01.",
+    },
   ]);
 
   const handleRefresh = () => {
     setRefreshing(true);
     setTimeout(() => {
       setRefreshing(false);
-      toast.success("Observability metrics refreshed — all nodes operating within normal SLA thresholds.");
-    }, 800);
+      toast.success("Observability metrics refreshed — all nodes operating within sub-30ms SLA.");
+    }, 700);
   };
 
   const handleTriggerHealthCheck = () => {
-    toast.info("Running synthetic health probes across API, DB, Queue and Object Store...");
+    toast.info("Running synthetic health probes across API, DB, Queue and Certificate Engine...");
     setTimeout(() => {
-      toast.success("Health probes verified: Latency 24ms, Database ping 1ms, Queue healthy.");
-    }, 1200);
+      toast.success("All synthetic probes succeeded: Gateway 24ms, Database ping 0.8ms, Redis queue healthy.");
+    }, 1000);
   };
 
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(text);
+    toast.success(`Copied correlation ID: ${text}`);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const filteredLogs = useMemo(() => {
+    return logEvents.filter((evt) => {
+      const matchesSearch =
+        evt.correlationId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        evt.service.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        evt.message.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesLevel = levelFilter === "ALL" || evt.level === levelFilter;
+      return matchesSearch && matchesLevel;
+    });
+  }, [logEvents, searchQuery, levelFilter]);
+
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+    <div className="admin-page-container">
+      {/* Top Breadcrumb & Metadata Header */}
+      <div className="admin-page-header">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
-              Section 13 & 15 Observability & Reliability
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span className="inline-flex items-center gap-1.5 bg-purple-50 text-purple-700 border border-purple-200/80 text-[11px] font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"></span>
+              Section 13 & 15 Observability Cockpit
             </span>
+            <span className="text-xs text-slate-400">•</span>
+            <span className="text-xs text-slate-500 font-medium">99.98% System Availability</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Activity className="w-6 h-6 text-purple-600" />
-            System Observability & Operational Monitoring
+          <h1 className="admin-page-title flex items-center gap-2.5">
+            <Activity className="w-7 h-7 text-purple-600" />
+            System Observability & Operational Telemetry
           </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
-            Real-time telemetry, routing latency metrics, exception queue monitoring, and structured audit trace stream.
+          <p className="admin-page-subtitle">
+            Real-time telemetry, routing latency metrics, exception queue monitoring, and structured audit trace stream with end-to-end correlation IDs.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" onClick={handleTriggerHealthCheck} className="text-xs">
+        <div className="admin-page-header-actions">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleTriggerHealthCheck}
+            className="text-xs border-slate-300 font-medium"
+          >
             <Zap className="w-3.5 h-3.5 mr-1 text-amber-500" />
-            Run Health Probes
+            Run Synthetic Probes
           </Button>
           <Button
             size="sm"
             onClick={handleRefresh}
             disabled={refreshing}
-            className="bg-[#0B1528] hover:bg-[#1e293b] text-xs"
+            className="btn-navy text-xs font-semibold px-4 shadow-sm"
           >
             <RotateCcw className={`w-3.5 h-3.5 mr-1.5 ${refreshing ? "animate-spin" : ""}`} />
             Refresh Telemetry
@@ -123,137 +165,174 @@ export default function AdminObservabilityPage() {
 
       {/* Dependency Status Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border border-slate-200 shadow-sm bg-white">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <div className="text-xs text-slate-500 font-medium">REST API Gateway</div>
-              <div className="text-base font-bold text-emerald-700 mt-1 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Operational
-              </div>
-              <div className="text-[11px] text-slate-400 mt-0.5">Avg Response: 32ms</div>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
-              <Server className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-slate-200 shadow-sm bg-white">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <div className="text-xs text-slate-500 font-medium">Database Cluster</div>
-              <div className="text-base font-bold text-emerald-700 mt-1 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Primary Connected
-              </div>
-              <div className="text-[11px] text-slate-400 mt-0.5">Replica lag: 0ms</div>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
-              <Database className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-slate-200 shadow-sm bg-white">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <div className="text-xs text-slate-500 font-medium">Routing Queue Depth</div>
-              <div className="text-base font-bold text-slate-900 mt-1">4 Pending Jobs</div>
-              <div className="text-[11px] text-slate-400 mt-0.5">Throughput: 18 req/sec</div>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600">
-              <Cpu className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-slate-200 shadow-sm bg-white">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <div className="text-xs text-slate-500 font-medium">Document Generator</div>
-              <div className="text-base font-bold text-emerald-700 mt-1 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Worker Ready
-              </div>
-              <div className="text-[11px] text-slate-400 mt-0.5">Certificates & PDFs</div>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
-              <HardDrive className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Observability Details: Latency & Exceptions */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-8 space-y-6">
-          <Card className="border border-slate-200 shadow-sm bg-slate-900 text-white overflow-hidden font-mono">
-            <div className="p-3.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2 text-slate-300">
-                <Terminal className="w-4 h-4 text-emerald-400" />
-                <span>Structured Application Log Stream (Correlation ID Trace)</span>
-              </div>
-              <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-400">
-                Live Append Mode
-              </span>
-            </div>
-            <CardContent className="p-4 space-y-3 text-xs overflow-x-auto">
-              {logEvents.map((evt) => (
-                <div key={evt.id} className="p-2.5 rounded bg-slate-950/60 border border-slate-800/80 space-y-1">
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-slate-400">{evt.timestamp}</span>
-                    <span
-                      className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
-                        evt.level === "WARN" ? "bg-amber-950 text-amber-300" : "bg-blue-950 text-blue-300"
-                      }`}
-                    >
-                      {evt.level}
-                    </span>
-                  </div>
-                  <div className="text-slate-400 text-[11px]">
-                    <strong className="text-purple-400">[{evt.service}]</strong>{" "}
-                    <span className="text-slate-500">corr_id:</span> {evt.correlationId}
-                  </div>
-                  <div className="text-slate-200 font-sans text-xs">{evt.message}</div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+        <div className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">API Gateway Edge</span>
+            <span className="p-1.5 bg-emerald-50 rounded-lg text-emerald-600">
+              <Server className="w-4 h-4" />
+            </span>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-xl font-bold text-slate-900 flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              Operational
+            </span>
+          </div>
+          <span className="text-[11px] text-slate-400 mt-1 block">Avg Response: 24ms (p99: 48ms)</span>
         </div>
 
-        {/* Right Column: Health Specs & Reliability Targets */}
-        <div className="lg:col-span-4 space-y-6">
-          <Card className="border border-slate-200 shadow-sm bg-white">
-            <div className="p-4 border-b border-slate-100">
-              <h2 className="text-sm font-bold text-slate-900">Non-Functional Targets (Section 18)</h2>
-              <p className="text-xs text-slate-500">SLA & operational recovery standards</p>
+        <div className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">PostgreSQL Primary</span>
+            <span className="p-1.5 bg-emerald-50 rounded-lg text-emerald-600">
+              <Database className="w-4 h-4" />
+            </span>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-xl font-bold text-slate-900 flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              Connected
+            </span>
+          </div>
+          <span className="text-[11px] text-slate-400 mt-1 block">Connection Pool: 14/50 active</span>
+        </div>
+
+        <div className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Async Queue Depth</span>
+            <span className="p-1.5 bg-blue-50 rounded-lg text-blue-600">
+              <Cpu className="w-4 h-4" />
+            </span>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-slate-900 font-mono">{systemHealth.queueDepth} Jobs</span>
+            <span className="text-xs font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+              {systemHealth.activeWorkers} Workers
+            </span>
+          </div>
+          <span className="text-[11px] text-slate-400 mt-1 block">Zero dead letter backlog</span>
+        </div>
+
+        <div className="bg-white border border-slate-200/80 rounded-xl p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Error Rate (Trailing 24h)</span>
+            <span className="p-1.5 bg-emerald-50 rounded-lg text-emerald-600">
+              <ShieldCheck className="w-4 h-4" />
+            </span>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-emerald-700 font-mono">{systemHealth.errorRatePct}%</span>
+            <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+              Exceptional
+            </span>
+          </div>
+          <span className="text-[11px] text-slate-400 mt-1 block">Under strict 0.5% threshold</span>
+        </div>
+      </div>
+
+      {/* Structured Observability Event Log */}
+      <div className="admin-panel">
+        <div className="admin-panel-header flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="admin-panel-title">
+              <Terminal className="w-4 h-4 text-purple-600" />
+              Correlation Trace Stream
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Structured logs with end-to-end request correlation IDs across microservices
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            {/* Filter Tabs */}
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg text-xs">
+              {["ALL", "INFO", "WARN", "ERROR"].map((lvl) => (
+                <button
+                  key={lvl}
+                  type="button"
+                  onClick={() => setLevelFilter(lvl)}
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
+                    levelFilter === lvl
+                      ? "bg-white text-slate-900 shadow-sm"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  {lvl}
+                </button>
+              ))}
             </div>
-            <CardContent className="p-4 space-y-3 text-xs">
-              <div className="flex justify-between items-center py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">Service SLA Availability:</span>
-                <span className="font-bold text-slate-900">99.95% Target</span>
-              </div>
-              <div className="flex justify-between items-center py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">Recovery Point Objective (RPO):</span>
-                <span className="font-mono text-slate-800">&lt; 15 Minutes</span>
-              </div>
-              <div className="flex justify-between items-center py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">Recovery Time Objective (RTO):</span>
-                <span className="font-mono text-slate-800">&lt; 1 Hour</span>
-              </div>
-              <div className="flex justify-between items-center py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">Routing Idempotency:</span>
-                <span className="text-emerald-600 font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Enforced
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-1.5">
-                <span className="text-slate-500">RBAC Token Policy:</span>
-                <span className="font-mono text-slate-800">1d expiry / HMAC-256</span>
-              </div>
-            </CardContent>
-          </Card>
+
+            {/* Search */}
+            <div className="relative w-full sm:w-64">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search correlation ID..."
+                className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-slate-400 font-mono"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Terminal Styled Log Feed */}
+        <div className="bg-[#0B1528] text-slate-300 font-mono text-xs overflow-x-auto divide-y divide-slate-800">
+          {filteredLogs.length === 0 ? (
+            <div className="p-8 text-center text-slate-500">
+              No telemetry events match your search criteria.
+            </div>
+          ) : (
+            filteredLogs.map((log) => {
+              const levelColor =
+                log.level === "INFO"
+                  ? "text-blue-400 bg-blue-950/60 border-blue-800/80"
+                  : log.level === "WARN"
+                  ? "text-amber-400 bg-amber-950/60 border-amber-800/80"
+                  : "text-red-400 bg-red-950/60 border-red-800/80";
+
+              return (
+                <div
+                  key={log.id}
+                  className="p-3.5 hover:bg-slate-900/90 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-2.5"
+                >
+                  <div className="flex items-start md:items-center gap-3 flex-1 flex-wrap">
+                    <span className="text-slate-500 text-[11px] shrink-0">{log.timestamp}</span>
+
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded border shrink-0 ${levelColor}`}
+                    >
+                      {log.level}
+                    </span>
+
+                    <span className="text-purple-300 font-semibold text-xs shrink-0">
+                      [{log.service}]
+                    </span>
+
+                    <span className="text-slate-200 text-xs">{log.message}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0 self-end md:self-auto">
+                    <span className="text-[11px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                      {log.correlationId}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(log.correlationId)}
+                      title="Copy correlation ID"
+                      className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-slate-200 transition-colors"
+                    >
+                      {copiedId === log.correlationId ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </div>
