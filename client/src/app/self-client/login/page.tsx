@@ -30,10 +30,11 @@ export default function SelfClientLoginPage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "rohan.mehta@example.com", password: "client123" },
   });
 
   const loginMutation = useMutation({
@@ -41,13 +42,19 @@ export default function SelfClientLoginPage() {
       await login(values.email.trim(), values.password);
     },
     onSuccess: () => {
-      toast.success("Signed in — welcome back.");
+      toast.success("Signed in — welcome back, Rohan.");
       router.push("/self-client");
     },
     onError: (err: Error) => {
       toast.error(err.message || "Failed to sign in. Please check your credentials.");
     },
   });
+
+  const handleQuickLogin = async () => {
+    setValue("email", "rohan.mehta@example.com");
+    setValue("password", "client123");
+    await loginMutation.mutateAsync({ email: "rohan.mehta@example.com", password: "client123" });
+  };
 
   useEffect(() => {
     if (!isCheckingSession && isAuthenticated) {
@@ -69,6 +76,15 @@ export default function SelfClientLoginPage() {
             <p className="text-sm text-slate-500">
               Sign in to track your services, upload documents, and manage payments.
             </p>
+          </div>
+
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 text-xs text-purple-800 space-y-1">
+            <div className="font-semibold flex items-center justify-between">
+              <span>Demo Client Credentials</span>
+              <span className="bg-purple-200 text-purple-900 px-1.5 py-0.5 rounded text-[10px] font-bold">PRE-FILLED</span>
+            </div>
+            <div>Email: <code className="font-mono bg-purple-100 px-1 rounded">rohan.mehta@example.com</code></div>
+            <div>Password: <code className="font-mono bg-purple-100 px-1 rounded">client123</code></div>
           </div>
 
           <form className="space-y-4" onSubmit={handleSubmit((v) => loginMutation.mutate(v))} noValidate>
@@ -102,18 +118,29 @@ export default function SelfClientLoginPage() {
 
             <Button
               type="submit"
-              variant="primary"
+              variant="default"
               size="lg"
               disabled={submitting}
-              className="w-full"
+              className="w-full bg-[#0B1528] hover:bg-[#1b2b4d]"
             >
               {submitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" /> Signing in…
                 </>
               ) : (
-                "Login"
+                "Login as Client"
               )}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              disabled={submitting}
+              onClick={handleQuickLogin}
+              className="w-full border-purple-300 bg-purple-50 text-purple-700 hover:bg-purple-100 font-medium"
+            >
+              ⚡ 1-Click Instant Demo Login
             </Button>
           </form>
 
