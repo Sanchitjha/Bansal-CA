@@ -1,3 +1,12 @@
+/*
+ * Tailwind v4 utilities are opt-in for new pages (admin/, partner/, and new
+ * self-client screens). Preflight (Tailwind's CSS reset) is intentionally
+ * skipped so it doesn't clobber the existing global CSS below.
+ */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
 :root {
   /* Brand Colors */
   --color-navy: #0B1528;
