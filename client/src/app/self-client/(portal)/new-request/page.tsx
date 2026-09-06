@@ -218,10 +218,10 @@ export default function NewServiceRequestPage() {
 
               <div className="pt-2 border-t border-slate-100">
                 <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
-                  Statutory Deliverables
+                  Required Documents & Process
                 </h3>
                 <ul className="space-y-1.5 text-xs text-slate-600">
-                  {selectedService.details.deliverables.slice(0, 3).map((item) => (
+                  {(selectedService.details?.documentsRequired || selectedService.details?.process || []).slice(0, 3).map((item) => (
                     <li key={item} className="flex items-center gap-2">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                       <span>{item}</span>
