@@ -193,7 +193,7 @@ export default function NewServiceRequestPage() {
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
               <div>
                 <span className="text-[10px] bg-slate-100 text-slate-600 font-mono px-2 py-0.5 rounded font-bold uppercase">
-                  {selectedService.category}
+                  {(selectedService as any).category || selectedService.id.toUpperCase()}
                 </span>
                 <h2 className="text-lg font-bold text-slate-900 mt-1.5">{selectedService.name}</h2>
               </div>
