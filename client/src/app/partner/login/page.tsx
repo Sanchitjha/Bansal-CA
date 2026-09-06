@@ -30,10 +30,11 @@ export default function PartnerLoginPage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "kunal@zenithadvisors.example.com", password: "partner123" },
   });
 
   const loginMutation = useMutation({
@@ -41,13 +42,19 @@ export default function PartnerLoginPage() {
       await login(values.email.trim(), values.password);
     },
     onSuccess: () => {
-      toast.success("Signed in — welcome back.");
+      toast.success("Signed in — welcome back, Kunal.");
       router.push("/partner");
     },
     onError: (err: Error) => {
       toast.error(err.message || "Failed to sign in. Please check your credentials.");
     },
   });
+
+  const handleQuickLogin = async () => {
+    setValue("email", "kunal@zenithadvisors.example.com");
+    setValue("password", "partner123");
+    await loginMutation.mutateAsync({ email: "kunal@zenithadvisors.example.com", password: "partner123" });
+  };
 
   useEffect(() => {
     if (!isCheckingSession && isAuthenticated) {
@@ -69,6 +76,15 @@ export default function PartnerLoginPage() {
             <p className="text-sm text-slate-500">
               Manage your referrals, track case progress, and view revenue share payouts.
             </p>
+          </div>
+
+          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-xs text-emerald-800 space-y-1">
+            <div className="font-semibold flex items-center justify-between">
+              <span>Demo Partner Credentials (Zenith Advisors)</span>
+              <span className="bg-emerald-200 text-emerald-900 px-1.5 py-0.5 rounded text-[10px] font-bold">PRE-FILLED</span>
+            </div>
+            <div>Email: <code className="font-mono bg-emerald-100 px-1 rounded">kunal@zenithadvisors.example.com</code></div>
+            <div>Partner Code: <code className="font-mono bg-emerald-100 px-1 rounded">PTR-101</code></div>
           </div>
 
           <form
@@ -106,18 +122,29 @@ export default function PartnerLoginPage() {
 
             <Button
               type="submit"
-              variant="primary"
+              variant="default"
               size="lg"
               disabled={submitting}
-              className="w-full"
+              className="w-full bg-[#0B1528] hover:bg-[#1b2b4d]"
             >
               {submitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" /> Signing in…
                 </>
               ) : (
-                "Login"
+                "Login as Partner"
               )}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              disabled={submitting}
+              onClick={handleQuickLogin}
+              className="w-full border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-medium"
+            >
+              ⚡ 1-Click Instant Demo Login
             </Button>
           </form>
 
