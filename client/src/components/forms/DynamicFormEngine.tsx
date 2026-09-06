@@ -203,8 +203,8 @@ export function DynamicFormEngine({ schema, onSubmit, onCancel, submitting = fal
                     id={field.id}
                     value={formData[field.id] || ""}
                     onChange={(e) => handleInputChange(field.id, e.target.value)}
-                    className={`w-full h-10 px-3 py-2 text-sm border rounded-md bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 ${
-                      errors[field.id] ? "border-red-400" : "border-slate-200"
+                    className={`w-full h-10 px-3.5 py-2 text-sm border rounded-lg bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0B1528]/15 focus:border-[#0B1528] transition-all shadow-sm ${
+                      errors[field.id] ? "border-red-400" : "border-slate-300"
                     }`}
                   >
                     <option value="">Select option...</option>
@@ -223,8 +223,8 @@ export function DynamicFormEngine({ schema, onSubmit, onCancel, submitting = fal
                     placeholder={field.placeholder || "Provide additional notes or instructions"}
                     value={formData[field.id] || ""}
                     onChange={(e) => handleInputChange(field.id, e.target.value)}
-                    className={`w-full p-2.5 text-sm border rounded-md bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 ${
-                      errors[field.id] ? "border-red-400" : "border-slate-200"
+                    className={`w-full p-3 text-sm border rounded-lg bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0B1528]/15 focus:border-[#0B1528] transition-all shadow-sm ${
+                      errors[field.id] ? "border-red-400" : "border-slate-300"
                     }`}
                   />
                 )}
@@ -307,7 +307,7 @@ export function DynamicFormEngine({ schema, onSubmit, onCancel, submitting = fal
             <Button
               type="submit"
               disabled={submitting}
-              className="bg-[#0B1528] hover:bg-[#1e293b] text-white px-6"
+              className="btn-navy text-white px-6 font-semibold shadow-sm"
             >
               {submitting ? "Submitting Application..." : "Submit & Generate Request ID"}
             </Button>
