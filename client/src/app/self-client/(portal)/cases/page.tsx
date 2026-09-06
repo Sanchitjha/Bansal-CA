@@ -63,7 +63,7 @@ export default function SelfClientCasesPage() {
                 <td>{c.createdDate}</td>
                 <td>{c.assignedTeamMember || "Unassigned"}</td>
                 <td>
-                  {c.status === "Closed" || c.status === "Completed" ? (
+                  {(c.status as string) === "Closed" || (c.status as string) === "Completed" ? (
                     <button
                       onClick={() => handleOpenCertificate(c)}
                       className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-semibold"
