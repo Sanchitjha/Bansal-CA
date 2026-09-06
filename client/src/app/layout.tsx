@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
+import { Providers } from "@/components/providers";
 import "./globals.css";
 
 // Configure Google Fonts with next/font/google
@@ -39,7 +40,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${cormorantGaramond.variable} ${plusJakartaSans.variable}`}>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
