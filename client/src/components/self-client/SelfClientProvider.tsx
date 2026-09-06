@@ -25,6 +25,7 @@ import {
 const SESSION_KEY = "aa_self_client_session_v2";
 
 interface SelfClientSession {
+  token?: string;
   user: {
     id: string;
     email: string;
