@@ -30,10 +30,11 @@ export default function AdminLoginPage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "amit.bansal@aa.com", password: "admin123" },
   });
 
   const loginMutation = useMutation({
@@ -41,13 +42,19 @@ export default function AdminLoginPage() {
       await login(values.email.trim(), values.password);
     },
     onSuccess: () => {
-      toast.success("Signed in — welcome back.");
+      toast.success("Signed in — welcome back, Amit.");
       router.push("/admin");
     },
     onError: (err: Error) => {
       toast.error(err.message || "Failed to sign in. Please check your credentials.");
     },
   });
+
+  const handleQuickLogin = async () => {
+    setValue("email", "amit.bansal@aa.com");
+    setValue("password", "admin123");
+    await loginMutation.mutateAsync({ email: "amit.bansal@aa.com", password: "admin123" });
+  };
 
   useEffect(() => {
     if (!isCheckingSession && isAuthenticated) {
@@ -69,6 +76,15 @@ export default function AdminLoginPage() {
             <p className="text-sm text-slate-500">
               Sign in to manage cases, clients, partners, payments and content.
             </p>
+          </div>
+
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800 space-y-1">
+            <div className="font-semibold flex items-center justify-between">
+              <span>Demo Admin Credentials</span>
+              <span className="bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded text-[10px] font-bold">PRE-FILLED</span>
+            </div>
+            <div>Email: <code className="font-mono bg-amber-100 px-1 rounded">amit.bansal@aa.com</code></div>
+            <div>Password: <code className="font-mono bg-amber-100 px-1 rounded">admin123</code></div>
           </div>
 
           <form
@@ -109,15 +125,26 @@ export default function AdminLoginPage() {
               variant="default"
               size="lg"
               disabled={submitting}
-              className="w-full"
+              className="w-full bg-[#0B1528] hover:bg-[#1b2b4d]"
             >
               {submitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" /> Signing in…
                 </>
               ) : (
-                "Login"
+                "Login as Administrator"
               )}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              disabled={submitting}
+              onClick={handleQuickLogin}
+              className="w-full border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 font-medium"
+            >
+              ⚡ 1-Click Instant Demo Login
             </Button>
           </form>
 
