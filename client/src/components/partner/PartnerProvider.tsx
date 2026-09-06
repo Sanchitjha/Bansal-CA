@@ -7,6 +7,7 @@ import { setToken } from "@/lib/api";
 const SESSION_KEY = "aa_partner_session";
 
 export interface PartnerSession {
+  token?: string;
   user: {
     id: string;
     email: string;
@@ -327,23 +328,35 @@ export function PartnerProvider({ children }: { children: ReactNode }) {
         email: email || "kunal@zenithadvisors.example.com",
         firstName: "Kunal",
         lastName: "Shah",
+        roleId: "partner",
+        status: "ACTIVE",
       },
       partner: {
         id: "PTR-101",
+        userId: "u-ptr-1",
         partnerCode: "PTR-101",
         legalName: "Zenith Advisors",
         displayName: "Zenith Advisors",
         status: "ACTIVE",
-        partnerType: "CHANNEL_PARTNER",
+        partnerType: "AGENCY",
         contact: {
           email: email || "kunal@zenithadvisors.example.com",
           phone: "+91 98200 10101",
         },
         kyc: {
+          legalName: "Zenith Advisors LLP",
           taxIdentifiers: {
             pan: "AAZPS1234C",
             gstin: "27AAZPS1234C1Z8",
           },
+          address: {
+            line1: "101 Marine Drive",
+            city: "Mumbai",
+            state: "Maharashtra",
+            postalCode: "400021",
+            country: "India",
+          },
+          verificationStatus: "VERIFIED",
         },
         bankAccounts: [
           {
@@ -353,6 +366,7 @@ export function PartnerProvider({ children }: { children: ReactNode }) {
             accountHolderName: "Zenith Advisors LLP",
             accountNumberEncrypted: "50200049281920",
             ifsc: "HDFC0000123",
+            verificationStatus: "VERIFIED",
           },
         ],
       },
