@@ -20,13 +20,20 @@ import {
   Settings as SettingsIcon,
   ChevronsLeft,
   ChevronsRight,
+  GitFork,
+  Coins,
+  Activity,
+  ClipboardList,
 } from "lucide-react";
 import { useAdmin } from "./AdminProvider";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/admin/operations", label: "Operations Queue", icon: ClipboardList },
+  { href: "/admin/cases", label: "Cases & Requests", icon: Briefcase },
+  { href: "/admin/routing", label: "Routing Engine", icon: GitFork },
+  { href: "/admin/commission-rules", label: "Commission Rules", icon: Coins },
   { href: "/admin/leads", label: "Leads", icon: UserPlus },
-  { href: "/admin/cases", label: "Cases", icon: Briefcase },
   { href: "/admin/clients", label: "Clients", icon: Users },
   { href: "/admin/partners", label: "Partners", icon: Handshake },
   { href: "/admin/services", label: "Services", icon: Layers },
@@ -34,9 +41,9 @@ const NAV_ITEMS = [
   { href: "/admin/invoices", label: "Invoices", icon: FileText },
   { href: "/admin/revenue", label: "Revenue Share", icon: PieChart },
   { href: "/admin/documents", label: "Documents", icon: FolderOpen },
+  { href: "/admin/observability", label: "Observability", icon: Activity },
   { href: "/admin/reports", label: "Reports", icon: BarChart3 },
   { href: "/admin/cms", label: "CMS", icon: LayoutTemplate },
-  { href: "/admin/notifications", label: "Notifications", icon: Bell },
   { href: "/admin/audit-logs", label: "Audit Logs", icon: History },
   { href: "/admin/settings", label: "Settings", icon: SettingsIcon },
 ];
