@@ -1,10 +1,26 @@
 import { BadRequestException, NotFoundException } from "../../common/errors/http-exception";
 import { PartnerRepository } from "./partner.repository";
 import { IPartner, IPartnerWithId } from "./partner.types";
+import { RoutingRuleModel, IRoutingRule } from "./routing-rule.model";
 
 export class PartnerService {
   constructor(private readonly partnerRepository: PartnerRepository) {}
 
+  // Routing Rules CRUD
+  public async createRoutingRule(data: Partial<IRoutingRule>): Promise<IRoutingRule> {
+    if (!data.serviceId || !data.name) {
+      throw new BadRequestException("serviceId and name are required for routing rule");
+    }
+    return RoutingRuleModel.create(data);
+  }
+
+  public async getRoutingRules(serviceId?: string): Promise<IRoutingRule[]> {
+    const query: any = {};
+    if (serviceId) query.serviceId = serviceId;
+    return RoutingRuleModel.find(query).sort({ priority: 1 }).lean() as unknown as IRoutingRule[];
+  }
+
+  // Partner CRUD
   public async getPartners(): Promise<IPartnerWithId[]> {
     return this.partnerRepository.findAll();
   }
