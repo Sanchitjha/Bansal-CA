@@ -11,13 +11,7 @@ export default function AdminPortalLayout({ children }: { children: React.ReactN
   const { isAuthenticated, isCheckingSession } = useAdmin();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  useEffect(() => {
-    if (!isCheckingSession && !isAuthenticated) {
-      router.replace("/admin/login");
-    }
-  }, [isCheckingSession, isAuthenticated, router]);
-
-  if (isCheckingSession || !isAuthenticated) {
+  if (isCheckingSession) {
     return (
       <div className="portal-loading-screen">
         <span>Loading the admin panel…</span>
