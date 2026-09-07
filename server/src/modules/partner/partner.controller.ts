@@ -4,6 +4,27 @@ import { PartnerService } from "./partner.service";
 export class PartnerController {
   constructor(private readonly partnerService: PartnerService) {}
 
+  // Routing Rules
+  public createRoutingRule = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const rule = await this.partnerService.createRoutingRule(req.body);
+      res.status(201).json(rule);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  public getRoutingRules = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { serviceId } = req.query as { serviceId?: string };
+      const rules = await this.partnerService.getRoutingRules(serviceId);
+      res.status(200).json(rules);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  // Partners
   public getPartners = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const partners = await this.partnerService.getPartners();
