@@ -4,6 +4,46 @@ import { ServiceService } from "./service.service";
 export class ServiceController {
   constructor(private readonly serviceService: ServiceService) {}
 
+  // Form Schemas
+  public createFormSchema = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const schema = await this.serviceService.createFormSchema(req.body);
+      res.status(201).json(schema);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  public getFormSchemas = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { serviceId } = req.query as { serviceId?: string };
+      const schemas = await this.serviceService.getFormSchemas(serviceId);
+      res.status(200).json(schemas);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  // Service Versions
+  public createServiceVersion = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const version = await this.serviceService.createServiceVersion(req.body);
+      res.status(201).json(version);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  public getServiceVersions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const versions = await this.serviceService.getServiceVersions(req.params.id);
+      res.status(200).json(versions);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  // Services CRUD
   public getServices = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const services = await this.serviceService.getServices();

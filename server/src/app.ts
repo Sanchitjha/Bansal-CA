@@ -22,7 +22,14 @@ export class App {
 
   private initializeMiddlewares(): void {
     this.app.use(helmet());
-    this.app.use(cors({ origin: env.clientUrl }));
+
+    const allowedOrigins = env.clientUrl === "*" ? true : [env.clientUrl, "http://localhost:3000", "http://localhost:3001"];
+    this.app.use(
+      cors({
+        origin: allowedOrigins,
+        credentials: true,
+      })
+    );
     this.app.use(express.json());
     this.app.use(
       morgan(":method :url :status :res[content-length] - :response-time ms", {
@@ -32,7 +39,7 @@ export class App {
   }
 
   private initializeRoutes(): void {
-    this.app.get("/health", (_req, res) => res.status(200).json({ status: "ok" }));
+    this.app.get("/health", (_req, res) => res.status(200).json({ status: "ok", timestamp: new Date().toISOString() }));
     this.app.get("/api-docs.json", (_req, res) => res.status(200).json(swaggerSpec));
     this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
     this.routes.forEach((route) => {

@@ -34,7 +34,7 @@ export interface IPayment {
 export interface IRevenueLedgerEntry {
   partnerId: Types.ObjectId;
   caseId: Types.ObjectId;
-  paymentId: Types.ObjectId;
+  paymentId?: Types.ObjectId;
   entryType: "EARNING" | "ADJUSTMENT" | "TDS" | "PAYOUT" | "REFUND_REVERSAL";
   grossAmountMinor: number;
   eligibleRevenueMinor: number;
@@ -43,12 +43,12 @@ export interface IRevenueLedgerEntry {
   otherDeductionMinor: number;
   netPayableMinor: number;
   ruleSnapshot: {
-    ruleType: "PERCENTAGE" | "FIXED_AMOUNT";
+    ruleType: "PERCENTAGE" | "FIXED_AMOUNT" | "HYBRID" | "SLAB";
     value: number;
     tdsPercentage: number;
   };
   statementId?: Types.ObjectId | null;
-  status: "PENDING" | "BILLED" | "PAID" | "HELD";
+  status: "PENDING" | "APPROVED" | "PAYABLE" | "PAID" | "REVERSED" | "DISPUTED" | "BILLED" | "HELD";
   adjustmentReason?: string;
 }
 
@@ -127,7 +127,7 @@ export interface IRevenueLedgerEntryWithId extends Omit<IRevenueLedgerEntry, "pa
   id: string;
   partnerId: string;
   caseId: string;
-  paymentId: string;
+  paymentId?: string;
   statementId?: string | null;
   createdAt: Date;
   updatedAt: Date;

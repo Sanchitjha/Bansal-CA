@@ -1,5 +1,8 @@
 export interface AuthTokenPayload {
   sub: string; // user id
+  userId?: string;
+  partnerId?: string;
+  clientId?: string;
   email: string;
   roleId: string;
   roleName: string;
@@ -22,6 +25,8 @@ export interface LoginResult {
     roleId: string;
     roleName: string;
     permissions: string[];
+    partnerId?: string;
+    clientId?: string;
   };
 }
 

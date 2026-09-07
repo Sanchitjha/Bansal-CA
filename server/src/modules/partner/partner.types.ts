@@ -43,6 +43,8 @@ export interface IPartner {
   status: "DRAFT" | "PENDING_VERIFICATION" | "ACTIVE" | "SUSPENDED" | "REJECTED";
   kyc: IPartnerKyc;
   bankAccounts: IBankAccount[];
+  revenueSharePct?: number;
+  tdsPct?: number;
   onboarding: {
     submittedAt?: Date;
     verifiedAt?: Date;
