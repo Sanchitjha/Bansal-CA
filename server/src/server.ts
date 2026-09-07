@@ -226,8 +226,12 @@ async function bootstrap(): Promise<void> {
 
   const database = new Database();
   await database.connect();
-  await seedDefaultAdmin();
-  await seedDefaultData();
+  if (database.isConnected) {
+    await seedDefaultAdmin();
+    await seedDefaultData();
+  } else {
+    logger.info("Operating in standalone API mode without active MongoDB connection.");
+  }
 
   app.listen();
 }
