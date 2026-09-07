@@ -9,6 +9,9 @@ const caseSchema = new Schema<ICase>(
     partnerId: { type: Schema.Types.ObjectId, ref: "Partner", default: null },
     clientId: { type: Schema.Types.ObjectId, ref: "Client", required: true },
     serviceId: { type: Schema.Types.ObjectId, ref: "Service", required: true },
+    serviceVersionId: { type: Schema.Types.ObjectId, ref: "ServiceVersion", default: null },
+    formSchemaVersion: { type: Number, default: 1 },
+    submittedFormData: { type: Schema.Types.Mixed },
 
     serviceSnapshot: {
       code: { type: String, required: true, trim: true },
@@ -25,7 +28,7 @@ const caseSchema = new Schema<ICase>(
       currency: { type: String, required: true, trim: true },
     },
     revenueRuleSnapshot: {
-      ruleType: { type: String, enum: ["PERCENTAGE", "FIXED_AMOUNT"], required: true },
+      ruleType: { type: String, enum: ["PERCENTAGE", "FIXED_AMOUNT", "HYBRID", "SLAB"], required: true },
       value: { type: Number, required: true },
       tdsPercentage: { type: Number, required: true },
     },
@@ -41,6 +44,17 @@ const caseSchema = new Schema<ICase>(
     status: {
       type: String,
       enum: [
+        "DRAFT",
+        "SUBMITTED",
+        "ASSIGNED",
+        "IN_REVIEW",
+        "MORE_INFO",
+        "PROCESSING",
+        "COMPLETED",
+        "FAILED",
+        "EXCEPTION",
+        "CANCELLED",
+        "CLOSED",
         "NEW",
         "PAYMENT_PENDING",
         "OPEN",
@@ -48,10 +62,8 @@ const caseSchema = new Schema<ICase>(
         "WAITING_FOR_CLIENT",
         "WAITING_FOR_PARTNER",
         "REVIEW",
-        "CLOSED",
-        "CANCELLED",
       ],
-      default: "NEW",
+      default: "DRAFT",
       required: true,
     },
     paymentStatus: {
@@ -76,6 +88,8 @@ const caseSchema = new Schema<ICase>(
     dueAt: { type: Date },
     closedAt: { type: Date },
     notes: { type: String, trim: true },
+    internalNotes: { type: String, trim: true },
+    customerNotes: { type: String, trim: true },
   },
   { timestamps: true }
 );
@@ -83,5 +97,6 @@ const caseSchema = new Schema<ICase>(
 caseSchema.index({ clientId: 1, status: 1 });
 caseSchema.index({ partnerId: 1, status: 1 });
 caseSchema.index({ assignedTo: 1, status: 1 });
+caseSchema.index({ caseNumber: 1 });
 
 export const CaseModel = model<ICase>("Case", caseSchema);

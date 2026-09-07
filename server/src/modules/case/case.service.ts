@@ -8,15 +8,26 @@ import {
   ICaseTaskWithId,
   IDocument,
   IDocumentWithId,
+  CaseStatus,
 } from "./case.types";
+import { DynamicFormService } from "../service/dynamic-form.service";
+import { RoutingEngine } from "../partner/routing.engine";
+import { StateMachineService } from "./state-machine.service";
 
 export class CaseService {
+  private readonly dynamicFormService = new DynamicFormService();
+  private readonly routingEngine = new RoutingEngine();
+  private readonly stateMachineService = new StateMachineService();
+
   constructor(private readonly caseRepository: CaseRepository) {}
 
   // Case Methods
-  public async getCases(clientId?: string): Promise<ICaseWithId[]> {
+  public async getCases(clientId?: string, partnerId?: string): Promise<ICaseWithId[]> {
     if (clientId) {
       return this.caseRepository.findByClientId(clientId);
+    }
+    if (partnerId) {
+      return this.caseRepository.findByPartnerId(partnerId);
     }
     return this.caseRepository.findAll();
   }
@@ -55,6 +66,46 @@ export class CaseService {
       throw new BadRequestException(`Case with number ${data.caseNumber} already exists`);
     }
     return this.caseRepository.create(data);
+  }
+
+  // Submit Case Flow: Revalidates form data and runs automatic routing engine
+  public async submitCase(caseId: string, submittedFormData?: Record<string, any>): Promise<ICaseWithId> {
+    const caseObj = await this.getCaseById(caseId);
+
+    // 1. Revalidate submitted form data against versioned form schema if provided
+    if (submittedFormData) {
+      await this.dynamicFormService.validateFormData(
+        caseObj.serviceId.toString(),
+        caseObj.formSchemaVersion || 1,
+        submittedFormData
+      );
+    }
+
+    // 2. Run Automatic Routing Engine
+    const routingResult = await this.routingEngine.routeRequest({
+      caseId,
+      serviceId: caseObj.serviceId.toString(),
+    });
+
+    const updated = await this.caseRepository.update(caseId, {
+      submittedFormData,
+      status: routingResult.status,
+      partnerId: routingResult.partnerId ? new Types.ObjectId(routingResult.partnerId) : undefined,
+    });
+
+    return updated!;
+  }
+
+  // Transition Status via State Machine
+  public async transitionStatus(
+    caseId: string,
+    nextStatus: CaseStatus,
+    actorId?: string,
+    actorType: "USER" | "SYSTEM" | "PARTNER" | "CUSTOMER" = "USER",
+    reason?: string
+  ): Promise<ICaseWithId> {
+    await this.stateMachineService.transitionState(caseId, nextStatus, actorId, actorType, reason);
+    return this.getCaseById(caseId);
   }
 
   public async updateCase(id: string, data: Partial<ICase>): Promise<ICaseWithId> {

@@ -12,9 +12,28 @@ import {
   IPartnerPayout,
   IPartnerPayoutWithId,
 } from "./finance.types";
+import { CommissionEngine } from "./commission.engine";
+import { CommissionPlanModel, ICommissionPlan } from "./commission-plan.model";
 
 export class FinanceService {
+  private readonly commissionEngine = new CommissionEngine();
+
   constructor(private readonly financeRepository: FinanceRepository) {}
+
+  // Commission Plan CRUD
+  public async createCommissionPlan(data: Partial<ICommissionPlan>): Promise<ICommissionPlan> {
+    if (!data.name) {
+      throw new BadRequestException("Commission plan name is required");
+    }
+    return CommissionPlanModel.create(data);
+  }
+
+  public async getCommissionPlans(serviceId?: string, partnerId?: string): Promise<ICommissionPlan[]> {
+    const query: any = {};
+    if (serviceId) query.serviceId = serviceId;
+    if (partnerId) query.partnerId = partnerId;
+    return CommissionPlanModel.find(query).lean() as unknown as ICommissionPlan[];
+  }
 
   // Invoices
   public async createInvoice(data: IInvoice): Promise<IInvoiceWithId> {
@@ -53,7 +72,7 @@ export class FinanceService {
     return payment;
   }
 
-  // Settle Webhook (Atomic operation simulating transaction logic)
+  // Settle Webhook with Commission Engine integration
   public async verifyPaymentWebhook(paymentId: string, gatewayPaymentId: string): Promise<IPaymentWithId> {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -87,30 +106,13 @@ export class FinanceService {
         });
       }
 
-      // Create Ledger Entry if partner exists
+      // Run Commission Engine if partner exists
       if (payment.partnerId) {
-        const gross = payment.amountMinor;
-        const tds = Math.floor(gross * 0.1); // 10% TDS default
-        const partnerShare = Math.floor(gross * 0.2); // 20% Partner share default
-        const net = partnerShare - tds;
-
-        await this.financeRepository.createLedgerEntry({
-          partnerId: new mongoose.Types.ObjectId(payment.partnerId),
-          caseId: new mongoose.Types.ObjectId(payment.caseId),
-          paymentId: new mongoose.Types.ObjectId(payment.id),
-          entryType: "EARNING",
-          grossAmountMinor: gross,
-          eligibleRevenueMinor: gross,
-          partnerShareMinor: partnerShare,
-          tdsAmountMinor: tds,
-          otherDeductionMinor: 0,
-          netPayableMinor: net,
-          ruleSnapshot: {
-            ruleType: "PERCENTAGE",
-            value: 20,
-            tdsPercentage: 10,
-          },
-          status: "PENDING",
+        await this.commissionEngine.calculateAndRecordCommission({
+          partnerId: payment.partnerId,
+          caseId: payment.caseId,
+          paymentId: payment.id,
+          grossAmountMinor: payment.amountMinor,
         });
       }
 

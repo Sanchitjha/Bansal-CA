@@ -4,6 +4,26 @@ import { FinanceService } from "./finance.service";
 export class FinanceController {
   constructor(private readonly financeService: FinanceService) {}
 
+  // Commission Plans
+  public createCommissionPlan = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const plan = await this.financeService.createCommissionPlan(req.body);
+      res.status(201).json(plan);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  public getCommissionPlans = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { serviceId, partnerId } = req.query as { serviceId?: string; partnerId?: string };
+      const plans = await this.financeService.getCommissionPlans(serviceId, partnerId);
+      res.status(200).json(plans);
+    } catch (err) {
+      next(err);
+    }
+  };
+
   // Invoices
   public createInvoice = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {

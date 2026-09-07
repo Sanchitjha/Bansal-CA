@@ -21,6 +21,9 @@ function toCaseWithId(doc: any): ICaseWithId {
     partnerId: doc.partnerId ? String(doc.partnerId) : null,
     clientId: String(doc.clientId),
     serviceId: String(doc.serviceId),
+    serviceVersionId: doc.serviceVersionId ? String(doc.serviceVersionId) : null,
+    formSchemaVersion: doc.formSchemaVersion,
+    submittedFormData: doc.submittedFormData,
     serviceSnapshot: doc.serviceSnapshot,
     pricingSnapshot: doc.pricingSnapshot,
     revenueRuleSnapshot: doc.revenueRuleSnapshot,
@@ -35,6 +38,8 @@ function toCaseWithId(doc: any): ICaseWithId {
     dueAt: doc.dueAt,
     closedAt: doc.closedAt,
     notes: doc.notes,
+    internalNotes: doc.internalNotes,
+    customerNotes: doc.customerNotes,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
@@ -96,6 +101,11 @@ export class CaseRepository {
 
   public async findByClientId(clientId: string): Promise<ICaseWithId[]> {
     const docs = await this.caseModel.find({ clientId }).lean();
+    return docs.map(toCaseWithId);
+  }
+
+  public async findByPartnerId(partnerId: string): Promise<ICaseWithId[]> {
+    const docs = await this.caseModel.find({ partnerId }).lean();
     return docs.map(toCaseWithId);
   }
 

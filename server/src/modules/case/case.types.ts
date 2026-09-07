@@ -13,10 +13,30 @@ export interface IPricingSnapshot {
 }
 
 export interface IRevenueRuleSnapshot {
-  ruleType: "PERCENTAGE" | "FIXED_AMOUNT";
+  ruleType: "PERCENTAGE" | "FIXED_AMOUNT" | "HYBRID" | "SLAB";
   value: number;
   tdsPercentage: number;
 }
+
+export type CaseStatus =
+  | "DRAFT"
+  | "SUBMITTED"
+  | "ASSIGNED"
+  | "IN_REVIEW"
+  | "MORE_INFO"
+  | "PROCESSING"
+  | "COMPLETED"
+  | "FAILED"
+  | "EXCEPTION"
+  | "CANCELLED"
+  | "CLOSED"
+  | "NEW"
+  | "PAYMENT_PENDING"
+  | "OPEN"
+  | "IN_PROCESS"
+  | "WAITING_FOR_CLIENT"
+  | "WAITING_FOR_PARTNER"
+  | "REVIEW";
 
 export interface ICase {
   caseNumber: string;
@@ -25,6 +45,9 @@ export interface ICase {
   partnerId?: Types.ObjectId | null;
   clientId: Types.ObjectId;
   serviceId: Types.ObjectId;
+  serviceVersionId?: Types.ObjectId | null;
+  formSchemaVersion?: number;
+  submittedFormData?: Record<string, any>;
   
   serviceSnapshot: IServiceSnapshot;
   pricingSnapshot: IPricingSnapshot;
@@ -33,16 +56,7 @@ export interface ICase {
 
   assignedTo?: Types.ObjectId | null;
   priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-  status:
-    | "NEW"
-    | "PAYMENT_PENDING"
-    | "OPEN"
-    | "IN_PROCESS"
-    | "WAITING_FOR_CLIENT"
-    | "WAITING_FOR_PARTNER"
-    | "REVIEW"
-    | "CLOSED"
-    | "CANCELLED";
+  status: CaseStatus;
   paymentStatus: "PENDING" | "PARTIALLY_PAID" | "PAID" | "REFUNDED";
   invoiceStatus: "UNISSUED" | "ISSUED" | "SETTLED" | "CANCELLED";
   revenueShareStatus: "NOT_ELIGIBLE" | "PENDING" | "CREDITED" | "PAID" | "REVERSED";
@@ -50,14 +64,17 @@ export interface ICase {
   dueAt?: Date;
   closedAt?: Date;
   notes?: string;
+  internalNotes?: string;
+  customerNotes?: string;
 }
 
-export interface ICaseWithId extends Omit<ICase, "leadId" | "partnerId" | "clientId" | "serviceId" | "assignedTo"> {
+export interface ICaseWithId extends Omit<ICase, "leadId" | "partnerId" | "clientId" | "serviceId" | "assignedTo" | "serviceVersionId"> {
   id: string;
   leadId?: string | null;
   partnerId?: string | null;
   clientId: string;
   serviceId: string;
+  serviceVersionId?: string | null;
   assignedTo?: string | null;
   createdAt: Date;
   updatedAt: Date;
