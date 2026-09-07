@@ -7,8 +7,18 @@ export class CaseController {
   // Case CRUD
   public getCases = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { clientId } = req.query;
-      const cases = await this.caseService.getCases(clientId as string);
+      let { clientId, partnerId } = req.query as { clientId?: string; partnerId?: string };
+
+      // Apply Tenant Scoping if user is a Partner or Client
+      if (req.tenantScope && !req.tenantScope.isSuperAdmin) {
+        if (req.tenantScope.partnerId) {
+          partnerId = req.tenantScope.partnerId;
+        } else if (req.tenantScope.clientId) {
+          clientId = req.tenantScope.clientId;
+        }
+      }
+
+      const cases = await this.caseService.getCases(clientId, partnerId);
       res.status(200).json(cases);
     } catch (err) {
       next(err);
@@ -28,6 +38,34 @@ export class CaseController {
     try {
       const caseObj = await this.caseService.createCase(req.body);
       res.status(201).json(caseObj);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  public submitCase = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const caseObj = await this.caseService.submitCase(req.params.id, req.body.submittedFormData);
+      res.status(200).json(caseObj);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  public transitionStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { status, reason } = req.body;
+      const actorId = req.user?.userId;
+      const actorType = req.user?.roleName === "ADMIN" ? "USER" : req.tenantScope?.partnerId ? "PARTNER" : "CUSTOMER";
+
+      const caseObj = await this.caseService.transitionStatus(
+        req.params.id,
+        status,
+        actorId,
+        actorType,
+        reason
+      );
+      res.status(200).json(caseObj);
     } catch (err) {
       next(err);
     }
