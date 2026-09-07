@@ -10,13 +10,7 @@ export default function SelfClientPortalLayout({ children }: { children: React.R
   const router = useRouter();
   const { isAuthenticated, isCheckingSession } = useSelfClient();
 
-  useEffect(() => {
-    if (!isCheckingSession && !isAuthenticated) {
-      router.replace("/self-client/login");
-    }
-  }, [isCheckingSession, isAuthenticated, router]);
-
-  if (isCheckingSession || !isAuthenticated) {
+  if (isCheckingSession) {
     return (
       <div className="portal-loading-screen">
         <span>Loading your portal…</span>
