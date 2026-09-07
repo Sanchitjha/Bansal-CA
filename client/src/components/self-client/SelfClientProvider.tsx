@@ -190,14 +190,44 @@ export function SelfClientProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<SelfClientMessage[]>(mockMessages);
   const [notifications, setNotifications] = useState<SelfClientNotification[]>(mockNotifications);
 
+  const DEFAULT_CLIENT_SESSION: SelfClientSession = {
+    token: "mock-client-jwt",
+    user: {
+      id: "u-cli-1",
+      email: "rohan.mehta@example.com",
+      firstName: "Rohan",
+      lastName: "Mehta",
+      roleId: "client",
+      status: "ACTIVE",
+    },
+    client: {
+      id: "CLT-2001",
+      userId: "u-cli-1",
+      clientCode: "CLT-2001",
+      clientType: "INDIVIDUAL",
+      legalName: "Rohan Mehta",
+      contact: {
+        email: "rohan.mehta@example.com",
+        phone: "+91 98765 43210",
+      },
+      status: "ACTIVE",
+      createdAt: "2026-02-14",
+    },
+  };
+
+  // Load session on mount or initialize default demo client
   useEffect(() => {
     const stored = window.localStorage.getItem(SESSION_KEY);
     if (stored) {
       try {
         setSession(JSON.parse(stored));
       } catch {
-        window.localStorage.removeItem(SESSION_KEY);
+        setSession(DEFAULT_CLIENT_SESSION);
+        window.localStorage.setItem(SESSION_KEY, JSON.stringify(DEFAULT_CLIENT_SESSION));
       }
+    } else {
+      setSession(DEFAULT_CLIENT_SESSION);
+      window.localStorage.setItem(SESSION_KEY, JSON.stringify(DEFAULT_CLIENT_SESSION));
     }
     setIsCheckingSession(false);
   }, []);
