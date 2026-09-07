@@ -10,13 +10,7 @@ export default function PartnerPortalLayout({ children }: { children: React.Reac
   const router = useRouter();
   const { isAuthenticated, isCheckingSession } = usePartner();
 
-  useEffect(() => {
-    if (!isCheckingSession && !isAuthenticated) {
-      router.replace("/partner/login");
-    }
-  }, [isCheckingSession, isAuthenticated, router]);
-
-  if (isCheckingSession || !isAuthenticated) {
+  if (isCheckingSession) {
     return (
       <div className="portal-loading-screen">
         <span>Loading Partner Portal…</span>
