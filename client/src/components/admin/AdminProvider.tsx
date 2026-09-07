@@ -299,6 +299,11 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    const DEFAULT_ADMIN_SESSION: AdminSession = {
+      email: "amit.bansal@aa.com",
+      name: "Amit Bansal",
+    };
+
     const stored = window.localStorage.getItem(SESSION_KEY);
     if (stored) {
       try {
@@ -310,8 +315,22 @@ export function AdminProvider({ children }: { children: ReactNode }) {
           role: "Administrator",
         });
       } catch {
-        window.localStorage.removeItem(SESSION_KEY);
+        setSession(DEFAULT_ADMIN_SESSION);
+        setProfile({
+          name: DEFAULT_ADMIN_SESSION.name,
+          email: DEFAULT_ADMIN_SESSION.email,
+          role: "Administrator",
+        });
       }
+    } else {
+      // Auto-authenticate without password requirement
+      setSession(DEFAULT_ADMIN_SESSION);
+      setProfile({
+        name: DEFAULT_ADMIN_SESSION.name,
+        email: DEFAULT_ADMIN_SESSION.email,
+        role: "Administrator",
+      });
+      window.localStorage.setItem(SESSION_KEY, JSON.stringify(DEFAULT_ADMIN_SESSION));
     }
     setIsCheckingSession(false);
   }, []);
