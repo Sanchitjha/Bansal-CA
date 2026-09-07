@@ -185,15 +185,71 @@ export function PartnerProvider({ children }: { children: ReactNode }) {
 
   const toggleSidebar = () => setSidebarCollapsed((prev) => !prev);
 
-  // Load session from LocalStorage
+  // Default partner session for passwordless access
+  const DEFAULT_PARTNER_SESSION: PartnerSession = {
+    token: "mock-partner-jwt",
+    user: {
+      id: "u-ptr-1",
+      email: "kunal@zenithadvisors.example.com",
+      firstName: "Kunal",
+      lastName: "Shah",
+      roleId: "partner",
+      status: "ACTIVE",
+    },
+    partner: {
+      id: "PTR-101",
+      userId: "u-ptr-1",
+      partnerCode: "PTR-101",
+      legalName: "Zenith Advisors",
+      displayName: "Zenith Advisors",
+      status: "ACTIVE",
+      partnerType: "AGENCY",
+      contact: {
+        email: "kunal@zenithadvisors.example.com",
+        phone: "+91 98200 10101",
+      },
+      kyc: {
+        legalName: "Zenith Advisors LLP",
+        taxIdentifiers: {
+          pan: "AAZPS1234C",
+          gstin: "27AAZPS1234C1Z8",
+        },
+        address: {
+          line1: "101 Marine Drive",
+          city: "Mumbai",
+          state: "Maharashtra",
+          postalCode: "400021",
+          country: "India",
+        },
+        verificationStatus: "VERIFIED",
+      },
+      bankAccounts: [
+        {
+          isPrimary: true,
+          bankName: "HDFC Bank",
+          branchName: "Nariman Point Branch",
+          accountHolderName: "Zenith Advisors LLP",
+          accountNumberEncrypted: "50200049281920",
+          ifsc: "HDFC0000123",
+          verificationStatus: "VERIFIED",
+        },
+      ],
+    },
+  };
+
+  // Load session from LocalStorage or initialize default demo partner
   useEffect(() => {
     const stored = window.localStorage.getItem(SESSION_KEY);
     if (stored) {
       try {
         setSession(JSON.parse(stored));
       } catch {
-        window.localStorage.removeItem(SESSION_KEY);
+        setSession(DEFAULT_PARTNER_SESSION);
+        window.localStorage.setItem(SESSION_KEY, JSON.stringify(DEFAULT_PARTNER_SESSION));
       }
+    } else {
+      setSession(DEFAULT_PARTNER_SESSION);
+      window.localStorage.setItem(SESSION_KEY, JSON.stringify(DEFAULT_PARTNER_SESSION));
     }
     setIsCheckingSession(false);
   }, []);
