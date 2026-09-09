@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Search, Bell, Menu, User, ShieldCheck, SlidersHorizontal, LogOut } from "lucide-react";
@@ -22,7 +22,21 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
   const router = useRouter();
   const { profile, notifications, logout, clients, partners, leads, cases, invoices, payments } = useAdmin();
   const [query, setQuery] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
   const unreadCount = notifications.filter((n) => !n.read).length;
+
+  useEffect(() => {
+    const focusSearch = (event: KeyboardEvent) => {
+      if (event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.matches("input, textarea, select, [contenteditable='true']")) return;
+      event.preventDefault();
+      searchRef.current?.focus();
+    };
+
+    window.addEventListener("keydown", focusSearch);
+    return () => window.removeEventListener("keydown", focusSearch);
+  }, []);
 
   const results = useMemo<SearchResult[]>(() => {
     const q = query.trim().toLowerCase();
@@ -75,13 +89,20 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
         <div className="admin-search">
           <Search className="admin-search-icon" />
           <input
+            ref={searchRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search clients, cases, partners..."
+            aria-label="Search clients, cases, partners, invoices, and payments"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={query.trim().length > 0}
+            aria-controls="admin-search-results"
           />
+          <kbd className="admin-search-shortcut" aria-hidden="true">/</kbd>
           {query.trim() && (
-            <div className="admin-search-results">
+            <div className="admin-search-results" id="admin-search-results" role="listbox">
               {results.length === 0 ? (
                 <div className="admin-search-empty">No results found.</div>
               ) : (
@@ -91,6 +112,7 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
                     href={r.href}
                     className="admin-search-result"
                     onClick={() => setQuery("")}
+                    role="option"
                   >
                     <span className="admin-search-result-type">{r.type}</span>
                     <span className="admin-search-result-title">{r.label}</span>
