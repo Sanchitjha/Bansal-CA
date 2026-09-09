@@ -28,6 +28,13 @@
   /* Elevation */
   --shadow-subtle: 0 4px 20px -2px rgba(var(--color-ink-rgb), 0.03);
   --shadow-medium: 0 10px 30px -10px rgba(var(--color-ink-rgb), 0.05);
+  --shadow-float: 0 18px 50px -20px rgba(var(--color-ink-rgb), 0.22);
+
+  /* Interaction and composition tokens */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --focus-ring: 0 0 0 3px rgba(227, 90, 55, 0.22);
 
   /* Layout Spacing */
   --section-padding: 8rem;
@@ -98,6 +105,20 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+  }
+
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 
   a {
@@ -329,12 +350,12 @@ p, span, a, button, input, textarea, .font-sans {
   color: var(--color-navy);
 }
 
-/* Dropdown styling */
-.nav-item-dropdown {
+/* Marketing navigation dropdown */
+.marketing-dropdown {
   position: relative;
 }
 
-.dropdown-trigger {
+.marketing-dropdown-trigger {
   display: flex;
   align-items: center;
   gap: 0.35rem;
@@ -345,19 +366,20 @@ p, span, a, button, input, textarea, .font-sans {
   transition: color 0.2s ease;
 }
 
-.dropdown-trigger:hover {
+.marketing-dropdown-trigger:hover,
+.marketing-dropdown-trigger[aria-expanded="true"] {
   color: var(--color-navy);
 }
 
-.dropdown-trigger svg {
+.marketing-dropdown-trigger svg {
   transition: transform 0.2s ease;
 }
 
-.nav-item-dropdown:hover .dropdown-trigger svg {
+.marketing-dropdown-trigger[aria-expanded="true"] svg {
   transform: rotate(180deg);
 }
 
-.dropdown-menu {
+.marketing-dropdown-menu {
   position: absolute;
   top: calc(100% + 15px);
   left: 50%;
@@ -374,14 +396,14 @@ p, span, a, button, input, textarea, .font-sans {
   pointer-events: none;
 }
 
-.nav-item-dropdown:hover .dropdown-menu {
+.marketing-dropdown-menu.is-open {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
   pointer-events: auto;
 }
 
-.dropdown-link {
+.marketing-dropdown-link {
   display: block;
   padding: 0.6rem 0.8rem;
   font-size: 0.8125rem;
@@ -389,68 +411,8 @@ p, span, a, button, input, textarea, .font-sans {
   border-radius: 4px;
 }
 
-.dropdown-link:hover {
-  background-color: var(--color-bg-neutral);
-  color: var(--color-navy);
-}
-
-/* Language selector */
-.lang-selector {
-  position: relative;
-  margin-right: 0.5rem;
-}
-
-.lang-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.4rem 0.8rem;
-  border-radius: 4px;
-  border: 1px solid var(--color-border-dark);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-navy);
-  transition: all 0.2s ease;
-}
-
-.lang-btn:hover {
-  border-color: var(--color-navy);
-  background-color: rgba(var(--color-ink-rgb), 0.03);
-}
-
-.lang-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  background-color: var(--color-bg-white);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-subtle);
-  border-radius: 4px;
-  padding: 0.4rem;
-  width: 100px;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.15s ease;
-  z-index: 10;
-}
-
-.lang-selector:hover .lang-dropdown {
-  opacity: 1;
-  visibility: visible;
-}
-
-.lang-option {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 0.4rem 0.6rem;
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
-  border-radius: 3px;
-  transition: all 0.2s ease;
-}
-
-.lang-option:hover {
+.marketing-dropdown-link:hover,
+.marketing-dropdown-link:focus-visible {
   background-color: var(--color-bg-neutral);
   color: var(--color-navy);
 }
@@ -1499,7 +1461,16 @@ p, span, a, button, input, textarea, .font-sans {
     transform: translateY(0);
   }
   
-  .dropdown-menu {
+  .marketing-dropdown,
+  .marketing-dropdown-trigger {
+    width: 100%;
+  }
+
+  .marketing-dropdown-trigger {
+    justify-content: space-between;
+  }
+
+  .marketing-dropdown-menu {
     position: static;
     transform: none !important;
     width: 100%;
@@ -1514,7 +1485,7 @@ p, span, a, button, input, textarea, .font-sans {
     transition: max-height 0.3s ease;
   }
   
-  .nav-item-dropdown:hover .dropdown-menu {
+  .marketing-dropdown-menu.is-open {
     max-height: 250px;
     margin-top: 0.5rem;
   }
@@ -1634,7 +1605,10 @@ p, span, a, button, input, textarea, .font-sans {
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background-color: var(--color-bg-neutral);
+  background:
+    radial-gradient(circle at 15% 15%, rgba(227, 90, 55, 0.13), transparent 32rem),
+    radial-gradient(circle at 85% 80%, rgba(11, 21, 40, 0.1), transparent 36rem),
+    var(--color-bg-neutral);
 }
 
 .login-card {
@@ -1642,8 +1616,8 @@ p, span, a, button, input, textarea, .font-sans {
   max-width: 420px;
   background-color: var(--color-bg-white);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  box-shadow: var(--shadow-medium);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
   padding: 3rem 2.5rem;
 }
 
@@ -1812,16 +1786,40 @@ p, span, a, button, input, textarea, .font-sans {
 .portal-nav {
   display: flex;
   flex-direction: column;
+  gap: 1.15rem;
+}
+
+.portal-nav-group {
+  display: flex;
+  flex-direction: column;
   gap: 0.25rem;
 }
 
+.portal-nav-group-label {
+  margin: 0 0.8rem 0.25rem;
+  color: var(--color-text-secondary);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
 .portal-nav-link {
-  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.72rem 0.85rem;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-text-secondary);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   transition: all 0.2s ease;
+}
+
+.portal-nav-link svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
 }
 
 .portal-nav-link:hover {
@@ -1851,6 +1849,9 @@ p, span, a, button, input, textarea, .font-sans {
   padding: 1.25rem 2.5rem;
   background-color: var(--color-bg-white);
   border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
 }
 
 .portal-badge-selfclient {
@@ -2498,6 +2499,15 @@ p, span, a, button, input, textarea, .font-sans {
 
   .portal-nav {
     flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .portal-nav-group {
+    display: contents;
+  }
+
+  .portal-nav-group-label {
+    display: none;
   }
 
   .portal-nav-link {
@@ -2617,8 +2627,23 @@ p, span, a, button, input, textarea, .font-sans {
 .admin-nav {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.85rem;
   overflow-y: auto;
+}
+
+.admin-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.admin-nav-group-label {
+  margin: 0.25rem 0.7rem 0.35rem;
+  color: var(--color-text-secondary);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 
 .admin-nav-link {
@@ -2653,7 +2678,8 @@ p, span, a, button, input, textarea, .font-sans {
 }
 
 .admin-sidebar[data-collapsed="true"] .admin-nav-link span,
-.admin-sidebar[data-collapsed="true"] .admin-sidebar-logo-text {
+.admin-sidebar[data-collapsed="true"] .admin-sidebar-logo-text,
+.admin-sidebar[data-collapsed="true"] .admin-nav-group-label {
   display: none;
 }
 
@@ -2708,6 +2734,26 @@ p, span, a, button, input, textarea, .font-sans {
 .admin-search input:focus {
   outline: none;
   border-color: var(--color-navy);
+}
+
+.admin-search-shortcut {
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0.05rem 0.35rem;
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1.25;
+  background: rgba(var(--color-ink-rgb), 0.06);
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  pointer-events: none;
+}
+
+.admin-search:focus-within .admin-search-shortcut {
+  display: none;
 }
 
 .admin-search-icon {
@@ -2827,7 +2873,7 @@ p, span, a, button, input, textarea, .font-sans {
 .kpi-card {
   background-color: var(--color-bg-white);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 1.35rem 1.5rem;
   display: flex;
   flex-direction: column;
@@ -2836,7 +2882,7 @@ p, span, a, button, input, textarea, .font-sans {
 }
 
 .kpi-card:hover {
-  border-color: var(--color-navy);
+  border-color: rgba(227, 90, 55, 0.48);
   box-shadow: var(--shadow-medium);
   transform: translateY(-2px);
 }
