@@ -28,13 +28,27 @@ export default function DropdownMenu({ trigger, items, header, align = "right" }
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  useEffect(() => {
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
+
   return (
     <div className="dropdown" ref={ref}>
-      <button type="button" onClick={() => setOpen((p) => !p)} style={{ background: "none", display: "flex" }}>
+      <button
+        type="button"
+        onClick={() => setOpen((p) => !p)}
+        style={{ background: "none", display: "flex" }}
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
         {trigger}
       </button>
       {open && (
-        <div className="dropdown-menu" style={align === "left" ? { left: 0, right: "auto" } : undefined}>
+        <div className="dropdown-menu" role="menu" style={align === "left" ? { left: 0, right: "auto" } : undefined}>
           {header}
           {header && <div className="dropdown-divider" />}
           {items.map((item) => (
@@ -42,6 +56,7 @@ export default function DropdownMenu({ trigger, items, header, align = "right" }
               key={item.label}
               type="button"
               className={`dropdown-item ${item.danger ? "danger" : ""}`}
+              role="menuitem"
               onClick={() => {
                 item.onClick();
                 setOpen(false);
