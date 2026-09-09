@@ -15,7 +15,6 @@ import {
   FolderOpen,
   BarChart3,
   LayoutTemplate,
-  Bell,
   History,
   Settings as SettingsIcon,
   ChevronsLeft,
@@ -27,25 +26,45 @@ import {
 } from "lucide-react";
 import { useAdmin } from "./AdminProvider";
 
-const NAV_ITEMS = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/admin/operations", label: "Operations Queue", icon: ClipboardList },
-  { href: "/admin/cases", label: "Cases & Requests", icon: Briefcase },
-  { href: "/admin/routing", label: "Routing Engine", icon: GitFork },
-  { href: "/admin/commission-rules", label: "Commission Rules", icon: Coins },
-  { href: "/admin/leads", label: "Leads", icon: UserPlus },
-  { href: "/admin/clients", label: "Clients", icon: Users },
-  { href: "/admin/partners", label: "Partners", icon: Handshake },
-  { href: "/admin/services", label: "Services", icon: Layers },
-  { href: "/admin/payments", label: "Payments", icon: CreditCard },
-  { href: "/admin/invoices", label: "Invoices", icon: FileText },
-  { href: "/admin/revenue", label: "Revenue Share", icon: PieChart },
-  { href: "/admin/documents", label: "Documents", icon: FolderOpen },
-  { href: "/admin/observability", label: "Observability", icon: Activity },
-  { href: "/admin/reports", label: "Reports", icon: BarChart3 },
-  { href: "/admin/cms", label: "CMS", icon: LayoutTemplate },
-  { href: "/admin/audit-logs", label: "Audit Logs", icon: History },
-  { href: "/admin/settings", label: "Settings", icon: SettingsIcon },
+const NAV_GROUPS = [
+  {
+    label: "Workspace",
+    items: [
+      { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+      { href: "/admin/operations", label: "Operations Queue", icon: ClipboardList },
+      { href: "/admin/cases", label: "Cases & Requests", icon: Briefcase },
+      { href: "/admin/leads", label: "Leads", icon: UserPlus },
+      { href: "/admin/documents", label: "Documents", icon: FolderOpen },
+    ],
+  },
+  {
+    label: "Network",
+    items: [
+      { href: "/admin/clients", label: "Clients", icon: Users },
+      { href: "/admin/partners", label: "Partners", icon: Handshake },
+      { href: "/admin/services", label: "Services", icon: Layers },
+      { href: "/admin/routing", label: "Routing Engine", icon: GitFork },
+    ],
+  },
+  {
+    label: "Finance",
+    items: [
+      { href: "/admin/payments", label: "Payments", icon: CreditCard },
+      { href: "/admin/invoices", label: "Invoices", icon: FileText },
+      { href: "/admin/revenue", label: "Revenue Share", icon: PieChart },
+      { href: "/admin/commission-rules", label: "Commission Rules", icon: Coins },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { href: "/admin/reports", label: "Reports", icon: BarChart3 },
+      { href: "/admin/observability", label: "Observability", icon: Activity },
+      { href: "/admin/cms", label: "CMS", icon: LayoutTemplate },
+      { href: "/admin/audit-logs", label: "Audit Logs", icon: History },
+      { href: "/admin/settings", label: "Settings", icon: SettingsIcon },
+    ],
+  },
 ];
 
 interface AdminSidebarProps {
@@ -73,23 +92,28 @@ export default function AdminSidebar({ mobileOpen, onNavigate }: AdminSidebarPro
           {sidebarCollapsed ? <ChevronsRight size={16} /> : <ChevronsLeft size={16} />}
         </button>
       </div>
-      <nav className="admin-nav">
-        {NAV_ITEMS.map((item) => {
-          const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`admin-nav-link ${isActive ? "active" : ""}`}
-              onClick={onNavigate}
-              title={sidebarCollapsed ? item.label : undefined}
-            >
-              <Icon />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
+      <nav className="admin-nav" aria-label="Admin navigation">
+        {NAV_GROUPS.map((group) => (
+          <div className="admin-nav-group" key={group.label}>
+            <p className="admin-nav-group-label">{group.label}</p>
+            {group.items.map((item) => {
+              const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`admin-nav-link ${isActive ? "active" : ""}`}
+                  onClick={onNavigate}
+                  title={sidebarCollapsed ? item.label : undefined}
+                >
+                  <Icon aria-hidden="true" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </nav>
     </aside>
   );
