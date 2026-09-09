@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { setToken } from "@/lib/api";
+import { API_URL, setToken } from "@/lib/api";
 
 const SESSION_KEY = "aa_partner_session";
 
@@ -263,7 +263,7 @@ export function PartnerProvider({ children }: { children: ReactNode }) {
         const partnerId = session.partner.id;
 
         // 1. Fetch Clients
-        const clientsRes = await fetch("http://localhost:5000/api/clients");
+        const clientsRes = await fetch(`${API_URL}/api/clients`);
         let allClients: any[] = [];
         if (clientsRes.ok) {
           const rawClients = await clientsRes.json();
@@ -272,7 +272,7 @@ export function PartnerProvider({ children }: { children: ReactNode }) {
         }
 
         // 2. Fetch Cases
-        const casesRes = await fetch("http://localhost:5000/api/cases");
+        const casesRes = await fetch(`${API_URL}/api/cases`);
         let allCases: any[] = [];
         if (casesRes.ok) {
           const rawCases = await casesRes.json();
@@ -285,7 +285,7 @@ export function PartnerProvider({ children }: { children: ReactNode }) {
         }
 
         // 3. Fetch Ledger Entries
-        const ledgerRes = await fetch(`http://localhost:5000/api/finance/ledger/${partnerId}`);
+        const ledgerRes = await fetch(`${API_URL}/api/finance/ledger/${partnerId}`);
         let ledgerList: LedgerEntry[] = [];
         if (ledgerRes.ok) {
           const rawLedger = await ledgerRes.json();
@@ -353,7 +353,7 @@ export function PartnerProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password?: string) => {
     try {
-      const res = await fetch("http://localhost:5000/api/users/partner-login", {
+      const res = await fetch(`${API_URL}/api/users/partner-login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -432,7 +432,7 @@ export function PartnerProvider({ children }: { children: ReactNode }) {
   };
 
   const signup = async (signupData: any) => {
-    const res = await fetch("http://localhost:5000/api/users/partner-signup", {
+    const res = await fetch(`${API_URL}/api/users/partner-signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(signupData),
@@ -484,7 +484,7 @@ export function PartnerProvider({ children }: { children: ReactNode }) {
 
     try {
       // Call standard signup endpoint but override the source
-      const res = await fetch("http://localhost:5000/api/users/signup", {
+      const res = await fetch(`${API_URL}/api/users/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -507,7 +507,7 @@ export function PartnerProvider({ children }: { children: ReactNode }) {
       const newClientProfile = resData.client;
 
       // Link client to partner
-      const updateRes = await fetch(`http://localhost:5000/api/clients/${newClientProfile.id}`, {
+      const updateRes = await fetch(`${API_URL}/api/clients/${newClientProfile.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -587,7 +587,7 @@ export function PartnerProvider({ children }: { children: ReactNode }) {
     };
 
     try {
-      const res = await fetch(`http://localhost:5000/api/partners/${session.partner.id}`, {
+      const res = await fetch(`${API_URL}/api/partners/${session.partner.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

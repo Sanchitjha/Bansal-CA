@@ -169,7 +169,6 @@ async function bootstrap(): Promise<void> {
   const roleRepository = new RoleRepository();
   const roleService = new RoleService(roleRepository);
   const roleController = new RoleController(roleService);
-  const roleRoute = new RoleRoute(roleController);
 
   const userRepository = new UserRepository();
   const userService = new UserService(userRepository);
@@ -180,6 +179,7 @@ async function bootstrap(): Promise<void> {
   const authenticate = new Authenticate(authService);
   const authRoute = new AuthRoute(authController, authenticate);
 
+  const roleRoute = new RoleRoute(roleController, authenticate);
   const userRoute = new UserRoute(userController, authenticate);
 
   const partnerRepository = new PartnerRepository();
@@ -190,7 +190,7 @@ async function bootstrap(): Promise<void> {
   const clientRepository = new ClientRepository();
   const clientService = new ClientService(clientRepository);
   const clientController = new ClientController(clientService);
-  const clientRoute = new ClientRoute(clientController);
+  const clientRoute = new ClientRoute(clientController, authenticate);
 
   const serviceRepository = new ServiceRepository();
   const serviceService = new ServiceService(serviceRepository);
@@ -200,7 +200,7 @@ async function bootstrap(): Promise<void> {
   const leadRepository = new LeadRepository();
   const leadService = new LeadService(leadRepository);
   const leadController = new LeadController(leadService);
-  const leadRoute = new LeadRoute(leadController);
+  const leadRoute = new LeadRoute(leadController, authenticate);
 
   const caseRepository = new CaseRepository();
   const caseService = new CaseService(caseRepository);

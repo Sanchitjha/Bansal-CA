@@ -10,8 +10,11 @@
  * Use it directly, or wrap it in a TanStack Query mutation/query hook.
  */
 
-const BASE_URL =
+/** Backend base URL, without trailing slash. Use this in raw fetch() calls. */
+export const API_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:5000";
+
+const BASE_URL = API_URL;
 
 const TOKEN_KEY = "aa_token";
 

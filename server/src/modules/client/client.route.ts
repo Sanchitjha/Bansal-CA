@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { IRoute } from "../../common/interfaces/route.interface";
+import { Authenticate } from "../../common/middlewares/auth.middleware";
 import { ClientController } from "./client.controller";
 
 /**
@@ -93,15 +94,20 @@ export class ClientRoute implements IRoute {
   public path = "/api/clients";
   public router = Router();
 
-  constructor(private readonly controller: ClientController) {
+  constructor(
+    private readonly controller: ClientController,
+    private readonly authMiddleware?: Authenticate
+  ) {
     this.initializeRoutes();
   }
 
   private initializeRoutes(): void {
-    this.router.get("/", this.controller.getClients);
-    this.router.get("/:id", this.controller.getClientById);
-    this.router.post("/", this.controller.createClient);
-    this.router.put("/:id", this.controller.updateClient);
-    this.router.delete("/:id", this.controller.deleteClient);
+    const auth = this.authMiddleware ? [this.authMiddleware.handle] : [];
+
+    this.router.get("/", ...auth, this.controller.getClients);
+    this.router.get("/:id", ...auth, this.controller.getClientById);
+    this.router.post("/", ...auth, this.controller.createClient);
+    this.router.put("/:id", ...auth, this.controller.updateClient);
+    this.router.delete("/:id", ...auth, this.controller.deleteClient);
   }
 }

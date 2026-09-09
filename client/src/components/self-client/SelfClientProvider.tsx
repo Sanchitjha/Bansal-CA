@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
-import { setToken } from "@/lib/api";
+import { API_URL, setToken } from "@/lib/api";
 import {
   mockMessages,
   mockNotifications,
@@ -90,7 +90,7 @@ interface SelfClientContextValue {
 const SelfClientContext = createContext<SelfClientContextValue | undefined>(undefined);
 
 let messageSequence = 100;
-let notificationSequence = 100;
+const notificationSequence = 100;
 
 // Mappers
 function mapBackendStatusToFrontend(status: string): CaseStatus {
@@ -251,7 +251,7 @@ export function SelfClientProvider({ children }: { children: ReactNode }) {
         });
 
         // 1. Fetch cases
-        const casesRes = await fetch(`http://localhost:5000/api/cases?clientId=${clientProfile.id}`);
+        const casesRes = await fetch(`${API_URL}/api/cases?clientId=${clientProfile.id}`);
         if (!casesRes.ok) throw new Error("Failed to fetch cases");
         const backendCases = await casesRes.json();
         
@@ -267,7 +267,7 @@ export function SelfClientProvider({ children }: { children: ReactNode }) {
 
           // Fetch tasks
           try {
-            const tasksRes = await fetch(`http://localhost:5000/api/cases/${c.id}/tasks`);
+            const tasksRes = await fetch(`${API_URL}/api/cases/${c.id}/tasks`);
             if (tasksRes.ok) {
               const backendTasks = await tasksRes.json();
               allTasks.push(...backendTasks.map(mapBackendTaskToFrontend));
@@ -278,7 +278,7 @@ export function SelfClientProvider({ children }: { children: ReactNode }) {
 
           // Fetch documents
           try {
-            const docsRes = await fetch(`http://localhost:5000/api/cases/${c.id}/documents?ownerType=CASE`);
+            const docsRes = await fetch(`${API_URL}/api/cases/${c.id}/documents?ownerType=CASE`);
             if (docsRes.ok) {
               const backendDocs = await docsRes.json();
               allDocs.push(...backendDocs.map(mapBackendDocumentToFrontend));
@@ -315,7 +315,7 @@ export function SelfClientProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password?: string) => {
     try {
-      const res = await fetch("http://localhost:5000/api/users/login", {
+      const res = await fetch(`${API_URL}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -383,7 +383,7 @@ export function SelfClientProvider({ children }: { children: ReactNode }) {
     legalName?: string;
     clientType?: "INDIVIDUAL" | "BUSINESS";
   }) => {
-    const res = await fetch("http://localhost:5000/api/users/signup", {
+    const res = await fetch(`${API_URL}/api/users/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(signupData),
@@ -447,7 +447,7 @@ export function SelfClientProvider({ children }: { children: ReactNode }) {
       notes: notes || "",
     };
 
-    const res = await fetch("http://localhost:5000/api/cases", {
+    const res = await fetch(`${API_URL}/api/cases`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -488,7 +488,7 @@ export function SelfClientProvider({ children }: { children: ReactNode }) {
 
     // 2. Call PUT /api/cases/{caseId}/tasks/{taskId}
     try {
-      const res = await fetch(`http://localhost:5000/api/cases/${taskObj.caseId}/tasks/${taskId}`, {
+      const res = await fetch(`${API_URL}/api/cases/${taskObj.caseId}/tasks/${taskId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -512,7 +512,7 @@ export function SelfClientProvider({ children }: { children: ReactNode }) {
     if (!docObj) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/cases/${docObj.caseId}/documents`, {
+      const res = await fetch(`${API_URL}/api/cases/${docObj.caseId}/documents`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

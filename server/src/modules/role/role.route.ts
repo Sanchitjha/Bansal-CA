@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { IRoute } from "../../common/interfaces/route.interface";
+import { Authenticate } from "../../common/middlewares/auth.middleware";
 import { RoleController } from "./role.controller";
 
 /**
@@ -93,15 +94,20 @@ export class RoleRoute implements IRoute {
   public path = "/api/roles";
   public router = Router();
 
-  constructor(private readonly controller: RoleController) {
+  constructor(
+    private readonly controller: RoleController,
+    private readonly authMiddleware?: Authenticate
+  ) {
     this.initializeRoutes();
   }
 
   private initializeRoutes(): void {
-    this.router.get("/", this.controller.getRoles);
-    this.router.get("/:id", this.controller.getRoleById);
-    this.router.post("/", this.controller.createRole);
-    this.router.put("/:id", this.controller.updateRole);
-    this.router.delete("/:id", this.controller.deleteRole);
+    const auth = this.authMiddleware ? [this.authMiddleware.handle] : [];
+
+    this.router.get("/", ...auth, this.controller.getRoles);
+    this.router.get("/:id", ...auth, this.controller.getRoleById);
+    this.router.post("/", ...auth, this.controller.createRole);
+    this.router.put("/:id", ...auth, this.controller.updateRole);
+    this.router.delete("/:id", ...auth, this.controller.deleteRole);
   }
 }
