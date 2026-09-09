@@ -1,15 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { servicesData } from "@/data/services";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeLanguage, setActiveLanguage] = useState("EN");
+  const [isServicesOpen, setIsServicesOpen] = useState(false);
+  const servicesMenuRef = useRef<HTMLDivElement>(null);
 
   const activeServices = servicesData.filter((s) => s.isActive).sort((a, b) => a.order - b.order);
+
+  useEffect(() => {
+    const closeServicesMenu = (event: MouseEvent) => {
+      if (!servicesMenuRef.current?.contains(event.target as Node)) setIsServicesOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsServicesOpen(false);
+    };
+
+    document.addEventListener("mousedown", closeServicesMenu);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("mousedown", closeServicesMenu);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
 
   return (
     <header className="header">
@@ -19,30 +36,43 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop and Mobile Menu */}
-        <nav className={`nav-menu ${isMenuOpen ? "active" : ""}`}>
+        <nav className={`nav-menu ${isMenuOpen ? "active" : ""}`} id="marketing-navigation" aria-label="Main navigation">
           <Link href="/" className="nav-link" onClick={() => setIsMenuOpen(false)}>
             Home
           </Link>
           
-          <div className="nav-item-dropdown">
-            <button className="dropdown-trigger">
+          <div className="marketing-dropdown" ref={servicesMenuRef}>
+            <button
+              type="button"
+              className="marketing-dropdown-trigger"
+              onClick={() => setIsServicesOpen((open) => !open)}
+              aria-expanded={isServicesOpen}
+              aria-haspopup="menu"
+              aria-controls="marketing-services-menu"
+            >
               Services
               <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
-            <div className="dropdown-menu">
+            <div
+              className={`marketing-dropdown-menu ${isServicesOpen ? "is-open" : ""}`}
+              id="marketing-services-menu"
+              role="menu"
+            >
               {activeServices.map((service) => (
                 <Link
                   key={service.id}
                   href={`#service-preview`}
-                  className="dropdown-link"
+                  className="marketing-dropdown-link"
                   onClick={() => {
                     setIsMenuOpen(false);
+                    setIsServicesOpen(false);
                     // Dispatch an event to update the service detail preview tab when clicked in header
                     const event = new CustomEvent("select-preview-service", { detail: service.id });
                     window.dispatchEvent(event);
                   }}
+                  role="menuitem"
                 >
                   {service.name}
                 </Link>
@@ -73,24 +103,6 @@ export default function Navbar() {
 
         {/* Right Side Actions */}
         <div className="nav-actions">
-          {/* Language Selector */}
-          <div className="lang-selector">
-            <button className="lang-btn">
-              {activeLanguage}
-              <svg width="8" height="5" viewBox="0 0 8 5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L4 4L7 1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-            <div className="lang-dropdown">
-              <button className="lang-option" onClick={() => setActiveLanguage("EN")}>
-                EN (English)
-              </button>
-              <button className="lang-option" onClick={() => setActiveLanguage("ES")}>
-                ES (Español)
-              </button>
-            </div>
-          </div>
-
           <ThemeToggle />
 
           <Link href="/self-client/login" className="login-link">
@@ -106,6 +118,9 @@ export default function Navbar() {
           className={`menu-toggle ${isMenuOpen ? "active" : ""}`}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle navigation menu"
+          aria-expanded={isMenuOpen}
+          aria-controls="marketing-navigation"
+          type="button"
         >
           <span></span>
           <span></span>
