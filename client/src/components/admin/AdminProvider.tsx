@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
-import { setToken } from "@/lib/api";
+import { API_URL, setToken } from "@/lib/api";
 import {
   mockAdminProfile,
   mockLeads,
@@ -342,7 +342,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     const fetchData = async () => {
       try {
         // 1. Fetch Users
-        const usersRes = await fetch("http://localhost:5000/api/users");
+        const usersRes = await fetch(`${API_URL}/api/users`);
         if (usersRes.ok) {
           const backendUsers = await usersRes.json();
           if (backendUsers.length > 0) {
@@ -351,7 +351,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         }
 
         // 2. Fetch Services
-        const servicesRes = await fetch("http://localhost:5000/api/services");
+        const servicesRes = await fetch(`${API_URL}/api/services`);
         if (servicesRes.ok) {
           const backendServices = await servicesRes.json();
           if (backendServices.length > 0) {
@@ -360,14 +360,14 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         }
 
         // 3. Fetch Clients
-        const clientsRes = await fetch("http://localhost:5000/api/clients");
+        const clientsRes = await fetch(`${API_URL}/api/clients`);
         let backendClients: any[] = [];
         if (clientsRes.ok) {
           backendClients = await clientsRes.json();
         }
 
         // 4. Fetch Partners
-        const partnersRes = await fetch("http://localhost:5000/api/partners");
+        const partnersRes = await fetch(`${API_URL}/api/partners`);
         if (partnersRes.ok) {
           const backendPartners = await partnersRes.json();
           if (backendPartners.length > 0) {
@@ -376,7 +376,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         }
 
         // 5. Fetch Leads
-        const leadsRes = await fetch("http://localhost:5000/api/leads");
+        const leadsRes = await fetch(`${API_URL}/api/leads`);
         if (leadsRes.ok) {
           const backendLeads = await leadsRes.json();
           if (backendLeads.length > 0) {
@@ -385,7 +385,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         }
 
         // 6. Fetch Cases
-        const casesRes = await fetch("http://localhost:5000/api/cases");
+        const casesRes = await fetch(`${API_URL}/api/cases`);
         if (casesRes.ok) {
           const backendCases = await casesRes.json();
           
@@ -421,7 +421,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password?: string) => {
     try {
-      const res = await fetch("http://localhost:5000/api/users/admin-login", {
+      const res = await fetch(`${API_URL}/api/users/admin-login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -486,7 +486,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
     try {
       const backendStatus = status === "New" ? "NEW" : status === "Contacted" ? "CONTACTED" : status === "Qualified" ? "QUALIFIED" : "LOST";
-      await fetch(`http://localhost:5000/api/leads/${leadId}`, {
+      await fetch(`${API_URL}/api/leads/${leadId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: backendStatus })
@@ -523,7 +523,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     logAction(`Case status changed to ${status}`, "Case", caseId);
 
     try {
-      await fetch(`http://localhost:5000/api/cases/${dbId}`, {
+      await fetch(`${API_URL}/api/cases/${dbId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -546,7 +546,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     logAction(`Case reassigned to ${assignedTo}`, "Case", caseId);
 
     try {
-      await fetch(`http://localhost:5000/api/cases/${dbId}`, {
+      await fetch(`${API_URL}/api/cases/${dbId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ assignedTo })
